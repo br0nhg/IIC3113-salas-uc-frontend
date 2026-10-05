@@ -1,5 +1,6 @@
 import { getStoredSession } from '../authService'
 import { readJson, writeJson } from '../storage'
+import { USER_SEED } from './userSeed'
 
 /*
  * Datos mock por usuario (favoritos, historial, reportes) guardados en
@@ -12,8 +13,10 @@ export function currentUserId(): string | null {
   return user && user.role !== 'guest' ? user.id : null
 }
 
+/** Datos guardados del usuario; si nunca guardó, los de demostración o el valor por defecto. */
 export function readUserData<T>(userId: string, key: string, fallback: T): T {
-  return readJson<T>(`${key}:${userId}`, fallback)
+  const seed = USER_SEED[userId]?.[key] as T | undefined
+  return readJson<T>(`${key}:${userId}`, seed ?? fallback)
 }
 
 export function writeUserData(userId: string, key: string, value: unknown): void {

@@ -34,7 +34,7 @@ Los endpoints usados (`/buildings`, `/rooms`, `/days`, `/modules`, `/availabilit
 | Admin      | `admin@uc.cl`      | `admin1234`  |
 | Estudiante | `estudiante@uc.cl` | `salasuc123` |
 
-Las cuentas creadas en `/registro` se guardan en el `localStorage` del navegador. También se puede entrar como invitado.
+La cuenta de estudiante parte con favoritos, historial y reportes de demostración. Las cuentas creadas en `/registro` se guardan en el `localStorage` del navegador. También se puede entrar como invitado.
 
 ## Estructura
 

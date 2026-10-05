@@ -3,6 +3,7 @@ import AppLayout from '../layouts/AppLayout'
 import AuthLayout from '../layouts/AuthLayout'
 import RegisterPage from '../pages/auth/RegisterPage'
 import WelcomePage from '../pages/auth/WelcomePage'
+import FavoritesReportsPage from '../pages/FavoritesReportsPage'
 import NotFoundPage from '../pages/NotFoundPage'
 import SearchPage from '../pages/SearchPage'
 
@@ -20,6 +21,7 @@ const router = createBrowserRouter([
       { path: '/salas', element: <SearchPage /> },
       // En escritorio el detalle se abre como panel lateral; en móvil, como página.
       { path: '/salas/:roomId', element: <SearchPage /> },
+      { path: '/favoritos', element: <FavoritesReportsPage /> },
       { path: '*', element: <NotFoundPage /> },
     ],
   },

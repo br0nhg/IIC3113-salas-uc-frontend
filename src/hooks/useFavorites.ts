@@ -1,41 +1,20 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { hasAccount, useAuth } from '../context/auth-context'
+import { useCallback, useMemo } from 'react'
 import { useToast } from '../context/toast-context'
 import { addFavorite, getFavorites, removeFavorite } from '../services'
 import type { Favorite } from '../types'
+import { useAccountData } from './useAccountData'
 
-interface FavoritesState {
-  /** Usuario para el que se cargaron los favoritos. */
-  userId: string | null
-  favorites: Favorite[]
-}
+const without = (list: Favorite[], roomId: string) => list.filter((f) => f.roomId !== roomId)
+const withRoom = (list: Favorite[], roomId: string) => [
+  { roomId, createdAt: new Date().toISOString() },
+  ...without(list, roomId),
+]
 
 /** Favoritos del usuario en sesión, con alternado optimista. */
 export function useFavorites() {
-  const { user } = useAuth()
   const { showToast } = useToast()
-  const userId = hasAccount(user) ? (user?.id ?? null) : null
-  const [state, setState] = useState<FavoritesState>({ userId: null, favorites: [] })
-
-  useEffect(() => {
-    if (!userId) return
-    let cancelled = false
-    getFavorites()
-      .then((favorites) => {
-        if (!cancelled) setState({ userId, favorites })
-      })
-      .catch(() => undefined)
-    return () => {
-      cancelled = true
-    }
-  }, [userId])
-
-  // Si cambió el usuario, los favoritos cargados ya no aplican.
-  const favorites = useMemo(
-    () => (userId && state.userId === userId ? state.favorites : []),
-    [state, userId],
-  )
-  const loading = userId !== null && state.userId !== userId
+  const { data, loading, hasAccount, update } = useAccountData(getFavorites)
+  const favorites = useMemo(() => data ?? [], [data])
 
   const isFavorite = useCallback(
     (roomId: string) => favorites.some((f) => f.roomId === roomId),
@@ -44,29 +23,23 @@ export function useFavorites() {
 
   const toggleFavorite = useCallback(
     async (roomId: string) => {
-      if (!userId) {
+      if (!hasAccount) {
         showToast('Inicia sesión con tu cuenta UC para guardar favoritos.', 'info')
         return
       }
       const wasFavorite = favorites.some((f) => f.roomId === roomId)
-      const previous = favorites
-      setState({
-        userId,
-        favorites: wasFavorite
-          ? favorites.filter((f) => f.roomId !== roomId)
-          : [{ roomId, createdAt: new Date().toISOString() }, ...favorites],
-      })
+      update((list) => (wasFavorite ? without(list, roomId) : withRoom(list, roomId)))
       try {
         if (wasFavorite) await removeFavorite(roomId)
         else await addFavorite(roomId)
         showToast(wasFavorite ? `${roomId} quitada de favoritos` : `${roomId} guardada en favoritos`)
       } catch {
-        setState({ userId, favorites: previous })
+        update((list) => (wasFavorite ? withRoom(list, roomId) : without(list, roomId)))
         showToast('No se pudo actualizar tus favoritos.', 'error')
       }
     },
-    [favorites, showToast, userId],
+    [favorites, hasAccount, showToast, update],
   )
 
-  return { favorites, loading, isFavorite, toggleFavorite, canUseFavorites: userId !== null }
+  return { favorites, loading, isFavorite, toggleFavorite, canUseFavorites: hasAccount }
 }
