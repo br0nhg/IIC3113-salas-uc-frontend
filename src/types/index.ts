@@ -170,6 +170,28 @@ export interface Report extends ReportInput {
   createdAt: string
 }
 
+/* ---------- Administración ---------- */
+
+export interface AdminMetrics {
+  /** Usuarios activos en los últimos 7 días. */
+  weeklyActiveUsers: number
+  /** Variación porcentual respecto de la semana anterior (ej. 14.2). */
+  weeklyActiveUsersChange: number
+  queriesToday: number
+  /** Módulos con más consultas hoy. */
+  peakModules: ModuleNumber[]
+  /** Porcentaje de usuarios que vuelven más de 3 días por semana. */
+  retentionRate: number
+  connectedRooms: number
+  openReports: number
+}
+
+/** Sala en la tabla de administración: su estado más la fecha de sus datos. */
+export interface AdminRoomRow extends RoomSummary {
+  /** Fecha ISO de la última actualización de datos de esta sala. */
+  lastSyncAt: string
+}
+
 /* ---------- Autenticación ---------- */
 
 export type UserRole = 'guest' | 'student' | 'admin'

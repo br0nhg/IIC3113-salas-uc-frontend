@@ -124,6 +124,3 @@ function buildAvailability(): Availability[] {
 }
 
 export const MOCK_AVAILABILITY: Availability[] = buildAvailability()
-
-/** Última actualización simulada desde BuscaCursos: hace 4 minutos al cargar la app. */
-export const MOCK_LAST_SYNC_AT = new Date(Date.now() - 4 * 60_000).toISOString()

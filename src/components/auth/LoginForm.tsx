@@ -19,7 +19,7 @@ export default function LoginForm() {
   const { showToast } = useToast()
   const navigate = useNavigate()
   const location = useLocation()
-  const redirectTo = (location.state as { from?: string } | null)?.from ?? '/salas'
+  const from = (location.state as { from?: string } | null)?.from
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -42,7 +42,7 @@ export default function LoginForm() {
     try {
       const user = await login({ email, password, remember })
       showToast(`Sesión iniciada. ¡Hola, ${user.name}!`)
-      navigate(redirectTo, { replace: true })
+      navigate(from ?? (user.role === 'admin' ? '/admin' : '/salas'), { replace: true })
     } catch (error) {
       setSubmitError(
         error instanceof ApiError && error.status === 401

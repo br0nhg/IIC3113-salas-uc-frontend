@@ -54,6 +54,15 @@ export default function TopNav({ lastSyncAt }: TopNavProps) {
           )}
           {hasAccount(user) ? (
             <div className="flex items-center gap-1">
+              {user?.role === 'admin' && (
+                <Link
+                  to="/admin"
+                  className="mr-2 flex min-h-11 items-center gap-1 rounded px-2 text-label-mono text-secondary hover:bg-surface-container sm:min-h-9"
+                >
+                  <Icon name="dashboard" className="text-[18px]" />
+                  <span className="hidden sm:inline">Consola</span>
+                </Link>
+              )}
               <span className="hidden max-w-40 truncate text-body-sm font-medium text-on-surface sm:inline">
                 {user?.name}
               </span>

@@ -18,10 +18,10 @@ import {
   MOCK_AVAILABILITY,
   MOCK_BUILDINGS,
   MOCK_DAYS,
-  MOCK_LAST_SYNC_AT,
   MOCK_MODULES,
   MOCK_ROOMS,
 } from './mock/data'
+import { getMockLastSyncAt } from './mock/sync'
 import { mockResponse } from './mock/utils'
 import { buildSchedule, compareSummaries, summarizeSchedule } from './roomStatus'
 
@@ -139,6 +139,6 @@ export async function getRoomDetail(roomId: string, day: DayCode): Promise<RoomD
 
 /** Fecha de la última actualización de datos desde BuscaCursos. */
 export function getSyncStatus(): Promise<SyncStatus> {
-  if (USE_MOCK) return mockResponse({ lastSyncAt: MOCK_LAST_SYNC_AT })
+  if (USE_MOCK) return mockResponse({ lastSyncAt: getMockLastSyncAt() })
   return getJson<SyncStatus>('/sync/status')
 }
