@@ -1,1 +1,206 @@
 @import 'tailwindcss';
+
+/*
+ * Tema del sistema de diseño (docs/DESIGN.md).
+ * Cada variable genera utilidades de Tailwind: --color-primary → bg-primary,
+ * --text-headline-lg → text-headline-lg, --spacing-gutter → p-gutter, etc.
+ */
+@theme {
+  /* Tipografía */
+  --font-sans: 'Geist', ui-sans-serif, system-ui, sans-serif;
+
+  --text-display-hero: 36px;
+  --text-display-hero--line-height: 44px;
+  --text-display-hero--letter-spacing: -0.03em;
+  --text-display-hero--font-weight: 700;
+  --text-display-hero-mobile: 28px;
+  --text-display-hero-mobile--line-height: 36px;
+  --text-display-hero-mobile--letter-spacing: -0.02em;
+  --text-display-hero-mobile--font-weight: 700;
+  --text-headline-lg: 24px;
+  --text-headline-lg--line-height: 32px;
+  --text-headline-lg--letter-spacing: -0.02em;
+  --text-headline-lg--font-weight: 600;
+  --text-headline-md: 20px;
+  --text-headline-md--line-height: 28px;
+  --text-headline-md--letter-spacing: -0.015em;
+  --text-headline-md--font-weight: 600;
+  --text-headline-sm: 16px;
+  --text-headline-sm--line-height: 24px;
+  --text-headline-sm--letter-spacing: -0.01em;
+  --text-headline-sm--font-weight: 600;
+  --text-body-lg: 16px;
+  --text-body-lg--line-height: 24px;
+  --text-body-lg--letter-spacing: -0.005em;
+  --text-body-base: 14px;
+  --text-body-base--line-height: 20px;
+  --text-body-sm: 13px;
+  --text-body-sm--line-height: 18px;
+  --text-label-mono: 12px;
+  --text-label-mono--line-height: 16px;
+  --text-label-mono--letter-spacing: 0.02em;
+  --text-label-mono--font-weight: 600;
+  --text-badge-status: 11px;
+  --text-badge-status--line-height: 14px;
+  --text-badge-status--letter-spacing: 0.04em;
+  --text-badge-status--font-weight: 700;
+
+  /* Colores de marca y superficies */
+  --color-surface: #faf8ff;
+  --color-surface-dim: #d2d9f4;
+  --color-surface-bright: #faf8ff;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f2f3ff;
+  --color-surface-container: #eaedff;
+  --color-surface-container-high: #e2e7ff;
+  --color-surface-container-highest: #dae2fd;
+  --color-on-surface: #131b2e;
+  --color-on-surface-variant: #444651;
+  --color-inverse-surface: #283044;
+  --color-inverse-on-surface: #eef0ff;
+  --color-outline: #747683;
+  --color-outline-variant: #c4c6d3;
+  --color-surface-tint: #3d5aad;
+  --color-primary: #001851;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #002b7f;
+  --color-on-primary-container: #7c97ef;
+  --color-inverse-primary: #b5c4ff;
+  --color-secondary: #0051d5;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #316bf3;
+  --color-on-secondary-container: #fefcff;
+  --color-tertiary: #00240a;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #003c16;
+  --color-on-tertiary-container: #2eb156;
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #93000a;
+  --color-primary-fixed: #dbe1ff;
+  --color-primary-fixed-dim: #b5c4ff;
+  --color-on-primary-fixed: #00174c;
+  --color-on-primary-fixed-variant: #224194;
+  --color-secondary-fixed: #dbe1ff;
+  --color-secondary-fixed-dim: #b4c5ff;
+  --color-on-secondary-fixed: #00174b;
+  --color-on-secondary-fixed-variant: #003ea8;
+  --color-tertiary-fixed: #7ffc97;
+  --color-tertiary-fixed-dim: #62df7d;
+  --color-on-tertiary-fixed: #002109;
+  --color-on-tertiary-fixed-variant: #005320;
+  --color-background: #faf8ff;
+  --color-on-background: #131b2e;
+  --color-surface-variant: #dae2fd;
+
+  /* Estados de sala (pares contenedor / tinta / borde) */
+  --color-status-free: #15803d;
+  --color-status-free-container: #dcfce7;
+  --color-status-free-border: #86efac;
+  --color-status-free-dot: #22c55e;
+  --color-status-soon: #b45309;
+  --color-status-soon-container: #fef3c7;
+  --color-status-soon-border: #fde68a;
+  --color-status-soon-dot: #f59e0b;
+  --color-status-busy: #be123c;
+  --color-status-busy-container: #ffe4e6;
+  --color-status-busy-border: #fda4af;
+  --color-status-busy-dot: #f43f5e;
+  --color-status-nodata: #475569;
+  --color-status-nodata-container: #f1f5f9;
+  --color-status-nodata-border: #cbd5e1;
+  --color-status-nodata-dot: #94a3b8;
+
+  /* Bordes */
+  --radius-sm: 0.125rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+
+  /* Espaciados */
+  --spacing-gutter: 1rem;
+  --spacing-gutter-desktop: 1.5rem;
+  --spacing-margin: 1rem;
+  --spacing-margin-tablet: 1.5rem;
+  --spacing-margin-desktop: 2.5rem;
+  --spacing-space-xs: 0.25rem;
+  --spacing-space-sm: 0.5rem;
+  --spacing-space-md: 0.75rem;
+  --spacing-space-lg: 1.25rem;
+  --spacing-space-xl: 2rem;
+
+  /* Sombras */
+  --shadow-card: 0 1px 3px 0 rgb(15 23 42 / 0.04), 0 1px 2px -1px rgb(15 23 42 / 0.02);
+  --shadow-card-hover: 0 4px 6px -1px rgb(15 23 42 / 0.06), 0 2px 4px -2px rgb(15 23 42 / 0.04);
+
+  /* Animaciones */
+  --animate-pulse-dot: pulse-dot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+
+  @keyframes pulse-dot {
+    0%,
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.4;
+      transform: scale(1.15);
+    }
+  }
+}
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-background font-sans text-body-base text-on-surface antialiased;
+    font-variant-numeric: tabular-nums;
+  }
+
+  ::selection {
+    @apply bg-secondary-fixed text-primary;
+  }
+}
+
+@layer components {
+  /*
+   * Clase propia para Material Symbols. No se usa .material-symbols-outlined
+   * porque la hoja de Google no está en una capa y pisaría los tamaños text-*.
+   */
+  .ms-icon {
+    font-family: 'Material Symbols Outlined';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 20px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
+    font-variation-settings:
+      'FILL' 0,
+      'wght' 400,
+      'GRAD' 0,
+      'opsz' 20;
+    display: inline-block;
+    vertical-align: middle;
+    user-select: none;
+    overflow: hidden;
+  }
+
+  .custom-scroll::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  .custom-scroll::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+  }
+}

@@ -62,3 +62,34 @@ export interface AvailabilityFilters {
   module?: ModuleNumber
   onlyFree?: boolean
 }
+
+/* ---------- Autenticación ---------- */
+
+export type UserRole = 'guest' | 'student' | 'admin'
+
+export interface User {
+  id: string
+  name: string
+  /** Correo institucional; null para invitados. */
+  email: string | null
+  role: UserRole
+}
+
+export interface AuthSession {
+  user: User
+  /** Token de acceso que entrega la API (en mock es un valor simulado). */
+  token: string
+}
+
+export interface LoginInput {
+  email: string
+  password: string
+  /** Mantener la sesión al cerrar el navegador. */
+  remember: boolean
+}
+
+export interface RegisterInput {
+  name: string
+  email: string
+  password: string
+}

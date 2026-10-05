@@ -16,6 +16,7 @@ import {
   MOCK_MODULES,
   MOCK_ROOMS,
 } from './mock/data'
+import { mockResponse } from './mock/utils'
 
 /*
  * Capa de acceso a datos. Los componentes solo usan estas funciones, así que
@@ -23,11 +24,6 @@ import {
  *
  * Los endpoints de la API son tentativos y deben alinearse con el backend.
  */
-
-/** Simula latencia de red en modo mock. */
-function mockResponse<T>(data: T, delayMs = 150): Promise<T> {
-  return new Promise((resolve) => setTimeout(() => resolve(data), delayMs))
-}
 
 export function getBuildings(): Promise<Building[]> {
   if (USE_MOCK) return mockResponse(MOCK_BUILDINGS)
