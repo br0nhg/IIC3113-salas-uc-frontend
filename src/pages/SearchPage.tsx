@@ -18,6 +18,14 @@ import type { BuildingCode, RoomSummary } from '../types'
 import { cn } from '../utils/cn'
 import type { ViewMode } from '../utils/searchParams'
 
+/** Columnas de la grilla de tarjetas: con el panel de detalle abierto queda menos ancho. */
+function cardGridClass(withPanel: boolean): string {
+  return cn(
+    'grid grid-cols-1 gap-gutter sm:grid-cols-2 lg:gap-gutter-desktop',
+    withPanel ? 'lg:grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3' : 'xl:grid-cols-3',
+  )
+}
+
 const VIEW_OPTIONS = [
   { value: 'cards' as const, label: 'Tarjetas', icon: 'grid_view' },
   { value: 'compact' as const, label: 'Compacto', icon: 'table_rows' },
@@ -133,6 +141,8 @@ function SearchView({ catalog }: { catalog: Catalog }) {
     )
   }
 
+  // En escritorio el panel lateral solo aparece con una sala seleccionada.
+  const showPanel = isDesktop && roomId !== undefined
   const sectorText = catalog.buildings.map((b) => b.code).join(', ').replace(/, ([^,]*)$/, ' y $1')
 
   return (
@@ -184,7 +194,7 @@ function SearchView({ catalog }: { catalog: Catalog }) {
         </p>
 
         {!result ? (
-          <ResultsSkeleton />
+          <ResultsSkeleton withPanel={showPanel} />
         ) : result.error && !loading ? (
           <EmptyState
             icon="cloud_off"
@@ -207,7 +217,7 @@ function SearchView({ catalog }: { catalog: Catalog }) {
             {view === 'compact' ? (
               <RoomCompactList summaries={visible} linkTo={linkTo} selectedId={roomId} />
             ) : (
-              <div className="grid grid-cols-1 gap-gutter sm:grid-cols-2 lg:grid-cols-1 lg:gap-gutter-desktop xl:grid-cols-2 2xl:grid-cols-3">
+              <div className={cardGridClass(showPanel)}>
                 {visible.map((summary) => (
                   <RoomCard
                     key={summary.room.id}
@@ -222,37 +232,28 @@ function SearchView({ catalog }: { catalog: Catalog }) {
         )}
       </section>
 
-      {isDesktop && (
+      {showPanel && roomId && (
         <aside
           aria-label="Detalle de la sala"
           className="custom-scroll sticky top-14 h-[calc(100dvh-3.5rem)] w-[410px] shrink-0 overflow-y-auto border-l border-outline-variant/30 bg-surface-container-lowest shadow-lg xl:w-[450px]"
         >
-          {roomId ? (
-            <RoomDetailPanel
-              roomId={roomId}
-              day={day}
-              module={module}
-              catalog={catalog}
-              closeTo={closeTo}
-              variant="drawer"
-            />
-          ) : (
-            <EmptyState
-              icon="meeting_room"
-              title="Selecciona una sala"
-              description="Elige una sala de la lista para ver su estado, equipamiento y cronograma del día."
-              className="h-full"
-            />
-          )}
+          <RoomDetailPanel
+            roomId={roomId}
+            day={day}
+            module={module}
+            catalog={catalog}
+            closeTo={closeTo}
+            variant="drawer"
+          />
         </aside>
       )}
     </div>
   )
 }
 
-function ResultsSkeleton() {
+function ResultsSkeleton({ withPanel = false }: { withPanel?: boolean }) {
   return (
-    <div className="grid grid-cols-1 gap-gutter sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3" aria-busy="true">
+    <div className={cardGridClass(withPanel)} aria-busy="true">
       {Array.from({ length: 6 }, (_, i) => (
         <Skeleton key={i} className="h-52 rounded-lg" />
       ))}
