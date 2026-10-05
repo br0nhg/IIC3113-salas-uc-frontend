@@ -46,12 +46,21 @@ export async function getJson<T>(path: string, params: QueryParams = {}): Promis
   return parseResponse<T>(response, path)
 }
 
-/** POST con cuerpo JSON a la API del backend. */
-export async function postJson<T>(path: string, body?: unknown): Promise<T> {
+async function sendJson<T>(method: 'POST' | 'DELETE', path: string, body?: unknown): Promise<T> {
   const response = await fetch(`${API_URL}${path}`, {
-    method: 'POST',
-    headers: buildHeaders({ 'Content-Type': 'application/json' }),
+    method,
+    headers: buildHeaders(body === undefined ? {} : { 'Content-Type': 'application/json' }),
     body: body === undefined ? undefined : JSON.stringify(body),
   })
   return parseResponse<T>(response, path)
+}
+
+/** POST con cuerpo JSON a la API del backend. */
+export function postJson<T>(path: string, body?: unknown): Promise<T> {
+  return sendJson<T>('POST', path, body)
+}
+
+/** DELETE a la API del backend. */
+export function deleteJson<T = void>(path: string): Promise<T> {
+  return sendJson<T>('DELETE', path)
 }

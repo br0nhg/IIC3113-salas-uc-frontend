@@ -12,6 +12,11 @@ export interface AuthContextValue {
 
 export const AuthContext = createContext<AuthContextValue | null>(null)
 
+/** Solo los usuarios con cuenta pueden guardar favoritos, historial y reportes. */
+export function hasAccount(user: User | null): boolean {
+  return user !== null && user.role !== 'guest'
+}
+
 export function useAuth(): AuthContextValue {
   const value = useContext(AuthContext)
   if (!value) throw new Error('useAuth debe usarse dentro de <AuthProvider>')

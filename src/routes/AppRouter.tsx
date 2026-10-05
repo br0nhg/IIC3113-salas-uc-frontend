@@ -1,10 +1,10 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import AppLayout from '../layouts/AppLayout'
 import AuthLayout from '../layouts/AuthLayout'
-import MainLayout from '../layouts/MainLayout'
 import RegisterPage from '../pages/auth/RegisterPage'
 import WelcomePage from '../pages/auth/WelcomePage'
-import HomePage from '../pages/HomePage'
 import NotFoundPage from '../pages/NotFoundPage'
+import SearchPage from '../pages/SearchPage'
 
 const router = createBrowserRouter([
   {
@@ -15,10 +15,11 @@ const router = createBrowserRouter([
     ],
   },
   {
-    // Provisorio: la vista de búsqueda definitiva llega en la siguiente fase.
-    element: <MainLayout />,
+    element: <AppLayout />,
     children: [
-      { path: '/salas', element: <HomePage /> },
+      { path: '/salas', element: <SearchPage /> },
+      // En escritorio el detalle se abre como panel lateral; en móvil, como página.
+      { path: '/salas/:roomId', element: <SearchPage /> },
       { path: '*', element: <NotFoundPage /> },
     ],
   },

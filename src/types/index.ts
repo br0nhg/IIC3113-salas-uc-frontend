@@ -14,7 +14,11 @@ export interface Room {
   buildingCode: BuildingCode
   capacity: number
   floor: number
+  features: RoomFeature[]
 }
+
+/** Equipamiento de una sala. */
+export type RoomFeature = 'projector' | 'air-conditioning' | 'power-outlets' | 'whiteboard' | 'wifi'
 
 /** Códigos de día tal como aparecen en BuscaCursos (W = miércoles). */
 export type DayCode = 'L' | 'M' | 'W' | 'J' | 'V' | 'S'
@@ -61,6 +65,109 @@ export interface AvailabilityFilters {
   day?: DayCode
   module?: ModuleNumber
   onlyFree?: boolean
+}
+
+/* ---------- Estado y detalle de salas ---------- */
+
+/**
+ * Estado de una sala en un día y módulo:
+ * - free: libre.
+ * - soon: ocupada, pero libre desde el módulo siguiente.
+ * - busy: ocupada.
+ * - nodata: no hay información de BuscaCursos para ese módulo.
+ */
+export type RoomStatus = 'free' | 'soon' | 'busy' | 'nodata'
+
+/** Ocupación de una sala en un módulo del día. isFree es null si no hay datos. */
+export interface ScheduleSlot {
+  module: TimeModule
+  isFree: boolean | null
+  course: CourseOccupancy | null
+}
+
+/** Próximo cambio de estado de una sala dentro del mismo día. */
+export interface StatusTransition {
+  /** "busy-from": pasa a ocupada; "free-from": pasa a libre. */
+  kind: 'busy-from' | 'free-from'
+  module: TimeModule
+}
+
+/** Sala con su estado en el día y módulo consultados. */
+export interface RoomSummary {
+  room: Room
+  building: Building
+  status: RoomStatus
+  /** Curso en el módulo consultado (solo si está ocupada). */
+  course: CourseOccupancy | null
+  /** null: el estado se mantiene el resto del día. */
+  transition: StatusTransition | null
+}
+
+export interface RoomSummaryFilters {
+  day: DayCode
+  module: ModuleNumber
+  buildingCode?: BuildingCode
+}
+
+/** Detalle de una sala con su cronograma de un día. */
+export interface RoomDetail {
+  room: Room
+  building: Building
+  day: DayCode
+  schedule: ScheduleSlot[]
+}
+
+export interface SyncStatus {
+  /** Fecha ISO de la última actualización de datos desde BuscaCursos. */
+  lastSyncAt: string
+}
+
+/* ---------- Favoritos, historial y reportes ---------- */
+
+export interface Favorite {
+  roomId: string
+  /** Fecha ISO. */
+  createdAt: string
+}
+
+/** Filtros de la búsqueda de salas que se guardan en el historial. */
+export interface SearchFilters {
+  buildingCode?: BuildingCode
+  day: DayCode
+  module: ModuleNumber
+  query?: string
+  onlyFree?: boolean
+}
+
+export type HistoryEntry =
+  | { id: string; createdAt: string; type: 'search'; filters: SearchFilters }
+  | { id: string; createdAt: string; type: 'room'; roomId: string; day: DayCode }
+
+/** Entrada de historial antes de que el servicio le asigne id y fecha. */
+export type HistoryEntryInput =
+  | { type: 'search'; filters: SearchFilters }
+  | { type: 'room'; roomId: string; day: DayCode }
+
+export type ReportType =
+  | 'shown-free-but-busy'
+  | 'shown-busy-but-free'
+  | 'equipment'
+  | 'locked'
+  | 'other'
+
+export type ReportStatus = 'pending' | 'in-review' | 'resolved'
+
+export interface ReportInput {
+  roomId: string
+  type: ReportType
+  detail: string
+}
+
+export interface Report extends ReportInput {
+  id: string
+  status: ReportStatus
+  /** Fecha ISO. */
+  createdAt: string
 }
 
 /* ---------- Autenticación ---------- */

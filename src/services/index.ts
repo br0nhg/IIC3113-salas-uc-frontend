@@ -1,4 +1,8 @@
 export * from './salasService'
 export * as authService from './authService'
+export * from './favoritosService'
+export * from './historialService'
+export * from './reportesService'
+export { summarizeSchedule } from './roomStatus'
 export { ApiError } from './http'
 export { USE_MOCK } from './config'
