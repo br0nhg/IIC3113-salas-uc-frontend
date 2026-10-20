@@ -4,8 +4,19 @@ import type {
   CourseOccupancy,
   Day,
   Room,
+  RoomFeature,
   TimeModule,
 } from '../../types'
+
+/** Hash determinista para que los datos mock sean estables entre recargas. */
+function hash(text: string): number {
+  let h = 2166136261
+  for (let i = 0; i < text.length; i++) {
+    h ^= text.charCodeAt(i)
+    h = Math.imul(h, 16777619)
+  }
+  return h >>> 0
+}
 
 export const MOCK_BUILDINGS: Building[] = [
   { code: 'A', name: 'Edificio A', description: 'Sector A de Ingeniería, San Joaquín' },
@@ -14,7 +25,7 @@ export const MOCK_BUILDINGS: Building[] = [
   { code: 'K', name: 'Edificio K', description: 'Sector K de Ingeniería, San Joaquín' },
 ]
 
-export const MOCK_ROOMS: Room[] = [
+const BASE_ROOMS: Omit<Room, 'features'>[] = [
   { id: 'A1', name: 'A1', buildingCode: 'A', capacity: 60, floor: 1 },
   { id: 'A2', name: 'A2', buildingCode: 'A', capacity: 60, floor: 1 },
   { id: 'A3', name: 'A3', buildingCode: 'A', capacity: 45, floor: 1 },
@@ -36,6 +47,21 @@ export const MOCK_ROOMS: Room[] = [
   { id: 'K203', name: 'K203', buildingCode: 'K', capacity: 40, floor: 2 },
   { id: 'K204', name: 'K204', buildingCode: 'K', capacity: 40, floor: 2 },
 ]
+
+/** Equipamiento mock: todas tienen proyector y wifi; el resto varía por sala. */
+function featuresFor(roomId: string): RoomFeature[] {
+  const h = hash(`features-${roomId}`)
+  const features: RoomFeature[] = ['projector', 'wifi']
+  if (h % 2 === 0) features.push('air-conditioning')
+  if (h % 3 !== 0) features.push('power-outlets')
+  if (h % 5 !== 0) features.push('whiteboard')
+  return features
+}
+
+export const MOCK_ROOMS: Room[] = BASE_ROOMS.map((room) => ({
+  ...room,
+  features: featuresFor(room.id),
+}))
 
 export const MOCK_DAYS: Day[] = [
   { code: 'L', name: 'Lunes', shortName: 'Lun' },
@@ -72,16 +98,6 @@ const MOCK_COURSES: Omit<CourseOccupancy, 'section'>[] = [
   { code: 'ICS2123', name: 'Modelos Estocásticos' },
   { code: 'ICE1514', name: 'Termodinámica' },
 ]
-
-/** Hash determinista para que los datos mock sean estables entre recargas. */
-function hash(text: string): number {
-  let h = 2166136261
-  for (let i = 0; i < text.length; i++) {
-    h ^= text.charCodeAt(i)
-    h = Math.imul(h, 16777619)
-  }
-  return h >>> 0
-}
 
 function buildAvailability(): Availability[] {
   const result: Availability[] = []
