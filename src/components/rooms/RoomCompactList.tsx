@@ -2,7 +2,7 @@ import { Link, type To } from 'react-router-dom'
 import type { RoomSummary } from '../../types'
 import { cn } from '../../utils/cn'
 import Icon from '../ui/Icon'
-import { STATUS_STYLES, transitionText } from './roomPresentation'
+import { formatCapacity, STATUS_STYLES, transitionText } from './roomPresentation'
 import StatusBadge from './StatusBadge'
 
 interface RoomCompactListProps {
@@ -28,7 +28,7 @@ export default function RoomCompactList({ summaries, linkTo, selectedId }: RoomC
                 <div className="flex items-baseline gap-2">
                   <span className="text-headline-sm text-primary">{room.name}</span>
                   <span className="truncate text-body-sm text-outline">
-                    {building.name} · {room.capacity} pers.
+                    {building.name} · {formatCapacity(room.capacity, 'pers.', 'Capacidad sin información')}
                   </span>
                 </div>
                 <p className={cn('text-body-sm', STATUS_STYLES[status].text)}>
@@ -73,7 +73,7 @@ export default function RoomCompactList({ summaries, linkTo, selectedId }: RoomC
                 </Link>
               </td>
               <td className="px-4 py-2.5 text-outline">{building.name}</td>
-              <td className="px-4 py-2.5">{room.capacity} personas</td>
+              <td className="px-4 py-2.5">{formatCapacity(room.capacity)}</td>
               <td className="px-4 py-2.5">
                 <StatusBadge status={status} />
               </td>

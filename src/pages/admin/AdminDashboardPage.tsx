@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import AdminRoomsTable from '../../components/admin/AdminRoomsTable'
 import MetricCard from '../../components/admin/MetricCard'
+import RoomInfoModal from '../../components/admin/RoomInfoModal'
 import SyncStatusPill from '../../components/admin/SyncStatusPill'
 import Button from '../../components/ui/Button'
 import EmptyState from '../../components/ui/EmptyState'
@@ -9,7 +10,7 @@ import Skeleton from '../../components/ui/Skeleton'
 import { useToast } from '../../context/toast-context'
 import { useCatalog, type Catalog } from '../../hooks/useCatalog'
 import { getAdminMetrics, getAdminRooms, getSyncStatus, triggerSync, USE_MOCK } from '../../services'
-import type { AdminMetrics, AdminRoomRow } from '../../types'
+import type { AdminMetrics, AdminRoomRow, Room } from '../../types'
 import { formatChange, formatInteger } from '../../utils/numbers'
 import { formatModuleRange, getCurrentSlot } from '../../utils/schedule'
 
@@ -45,6 +46,7 @@ function Dashboard({ catalog }: { catalog: Catalog }) {
   // Se incrementa tras cada sincronización para recargar la tabla.
   const [syncVersion, setSyncVersion] = useState(0)
   const [rowsState, setRowsState] = useState<RowsState | null>(null)
+  const [editingRoom, setEditingRoom] = useState<Room | null>(null)
 
   const now = getCurrentSlot(catalog.modules)
   const day = now?.day ?? 'L'
@@ -118,28 +120,33 @@ function Dashboard({ catalog }: { catalog: Catalog }) {
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <MetricCard
-          label="Usuarios activos (7 días)"
-          value={metrics && formatInteger(metrics.weeklyActiveUsers)}
-          footnote={
-            metrics && (
-              <span className="flex items-center gap-1 text-status-free">
-                <Icon name={metrics.weeklyActiveUsersChange >= 0 ? 'trending_up' : 'trending_down'} className="text-[14px]" />
-                {formatChange(metrics.weeklyActiveUsersChange)} esta semana
-              </span>
-            )
-          }
-        />
-        <MetricCard
-          label="Consultas hoy"
-          value={metrics && formatInteger(metrics.queriesToday)}
-          footnote={peak && <span className="text-outline">Peak en los módulos {peak}</span>}
-        />
-        <MetricCard
-          label="Retención"
-          value={metrics && `${metrics.retentionRate} %`}
-          footnote={<span className="text-status-free">Usan la app más de 3 días/sem.</span>}
-        />
+        {/* La API aún no registra métricas de uso; solo se muestran en modo demostración. */}
+        {USE_MOCK && (
+          <>
+            <MetricCard
+              label="Usuarios activos (7 días)"
+              value={metrics && formatInteger(metrics.weeklyActiveUsers)}
+              footnote={
+                metrics && (
+                  <span className="flex items-center gap-1 text-status-free">
+                    <Icon name={metrics.weeklyActiveUsersChange >= 0 ? 'trending_up' : 'trending_down'} className="text-[14px]" />
+                    {formatChange(metrics.weeklyActiveUsersChange)} esta semana
+                  </span>
+                )
+              }
+            />
+            <MetricCard
+              label="Consultas hoy"
+              value={metrics && formatInteger(metrics.queriesToday)}
+              footnote={peak && <span className="text-outline">Peak en los módulos {peak}</span>}
+            />
+            <MetricCard
+              label="Retención"
+              value={metrics && `${metrics.retentionRate} %`}
+              footnote={<span className="text-status-free">Usan la app más de 3 días/sem.</span>}
+            />
+          </>
+        )}
         <MetricCard
           label="Salas conectadas"
           value={metrics && formatInteger(metrics.connectedRooms)}
@@ -157,6 +164,13 @@ function Dashboard({ catalog }: { catalog: Catalog }) {
         day={day}
         module={module}
         contextLabel={contextLabel}
+        onEdit={setEditingRoom}
+      />
+
+      <RoomInfoModal
+        room={editingRoom}
+        onClose={() => setEditingRoom(null)}
+        onSaved={() => setSyncVersion((version) => version + 1)}
       />
     </div>
   )

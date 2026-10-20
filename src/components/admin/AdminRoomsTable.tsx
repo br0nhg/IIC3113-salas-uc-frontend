@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import type { AdminRoomRow, DayCode, ModuleNumber } from '../../types'
+import type { AdminRoomRow, DayCode, ModuleNumber, Room } from '../../types'
 import { cn } from '../../utils/cn'
 import { formatRelativeTime } from '../../utils/schedule'
-import { STATUS_STYLES, transitionText } from '../rooms/roomPresentation'
+import { formatCapacity, STATUS_STYLES, transitionText } from '../rooms/roomPresentation'
 import StatusBadge from '../rooms/StatusBadge'
+import Button from '../ui/Button'
 import ButtonLink from '../ui/ButtonLink'
 import EmptyState from '../ui/EmptyState'
 import SearchField from '../ui/SearchField'
@@ -16,10 +17,19 @@ interface AdminRoomsTableProps {
   module: ModuleNumber
   /** Ej. "Lunes · M4 (12:20 – 13:30)". */
   contextLabel: string
+  /** Abre la edición de piso y capacidad de la sala. */
+  onEdit: (room: Room) => void
 }
 
 /** Tabla de salas por sector con su estado calculado y la antigüedad de sus datos. */
-export default function AdminRoomsTable({ rows, error, day, module, contextLabel }: AdminRoomsTableProps) {
+export default function AdminRoomsTable({
+  rows,
+  error,
+  day,
+  module,
+  contextLabel,
+  onEdit,
+}: AdminRoomsTableProps) {
   const [filter, setFilter] = useState('')
   const term = filter.trim().toLowerCase()
   const visible = (rows ?? []).filter(
@@ -67,15 +77,20 @@ export default function AdminRoomsTable({ rows, error, day, module, contextLabel
                     <StatusBadge status={row.status} />
                   </div>
                   <p className="text-xs text-outline">
-                    {row.building.name} · {row.room.capacity} puestos · sinc. {formatRelativeTime(row.lastSyncAt)}
+                    {row.building.name} · {formatCapacity(row.room.capacity, 'puestos', 'Capacidad sin información')} · sinc. {formatRelativeTime(row.lastSyncAt)}
                   </p>
                   <p className={cn('text-xs', STATUS_STYLES[row.status].text)}>
                     {transitionText(row.status, row.transition)}
                   </p>
                 </div>
-                <ButtonLink to={detailUrl(row.room.id)} variant="outline" size="sm" aria-label={`Ver detalle de ${row.room.name}`}>
-                  Ver
-                </ButtonLink>
+                <div className="flex shrink-0 gap-2">
+                  <Button variant="outline" size="sm" onClick={() => onEdit(row.room)} aria-label={`Editar ${row.room.name}`}>
+                    Editar
+                  </Button>
+                  <ButtonLink to={detailUrl(row.room.id)} variant="outline" size="sm" aria-label={`Ver detalle de ${row.room.name}`}>
+                    Ver
+                  </ButtonLink>
+                </div>
               </li>
             ))}
           </ul>
@@ -105,7 +120,7 @@ export default function AdminRoomsTable({ rows, error, day, module, contextLabel
                   >
                     <td className="px-4 py-3 font-bold text-primary">{row.room.name}</td>
                     <td className="px-4 py-3 text-outline">{row.building.name}</td>
-                    <td className="px-4 py-3">{row.room.capacity} puestos</td>
+                    <td className="px-4 py-3">{formatCapacity(row.room.capacity, 'puestos')}</td>
                     <td className="px-4 py-3">
                       <StatusBadge status={row.status} />
                     </td>
@@ -113,7 +128,16 @@ export default function AdminRoomsTable({ rows, error, day, module, contextLabel
                       {transitionText(row.status, row.transition)}
                     </td>
                     <td className="px-4 py-3 text-xs text-outline">{formatRelativeTime(row.lastSyncAt)}</td>
-                    <td className="px-4 py-3 text-right">
+                    <td className="space-x-2 px-4 py-3 text-right whitespace-nowrap">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="bg-surface-container text-primary hover:bg-surface-container-high"
+                        onClick={() => onEdit(row.room)}
+                        aria-label={`Editar ${row.room.name}`}
+                      >
+                        Editar
+                      </Button>
                       <ButtonLink
                         to={detailUrl(row.room.id)}
                         variant="ghost"

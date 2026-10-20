@@ -12,8 +12,9 @@ export interface Room {
   id: string
   name: string
   buildingCode: BuildingCode
-  capacity: number
-  floor: number
+  /** null mientras el administrador no lo ingrese (no viene de BuscaCursos). */
+  capacity: number | null
+  floor: number | null
   features: RoomFeature[]
 }
 
@@ -43,7 +44,8 @@ export interface TimeModule {
 /** Curso que ocupa una sala en un día y módulo. */
 export interface CourseOccupancy {
   code: string
-  section: number
+  /** BuscaCursos no la entrega por sala; null si no se conoce. */
+  section: number | null
   name: string
 }
 

@@ -15,6 +15,7 @@ import Skeleton from '../ui/Skeleton'
 import RoomFeatureGrid from './RoomFeatureGrid'
 import RoomSchedule from './RoomSchedule'
 import RoomStatusPanel from './RoomStatusPanel'
+import { formatFloor } from './roomPresentation'
 
 interface RoomDetailPanelProps {
   roomId: string
@@ -131,7 +132,7 @@ export default function RoomDetailPanel({
             Sala {room.name}
           </h2>
           <p className="text-body-sm text-outline">
-            {building.name} · Piso {room.floor}
+            {building.name} · {formatFloor(room.floor)}
           </p>
         </div>
         <div className="flex shrink-0 items-center">

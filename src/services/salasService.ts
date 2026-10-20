@@ -13,7 +13,7 @@ import type {
   TimeModule,
 } from '../types'
 import { USE_MOCK } from './config'
-import { ApiError, getJson } from './http'
+import { getJson } from './http'
 import {
   MOCK_AVAILABILITY,
   MOCK_BUILDINGS,
@@ -29,8 +29,32 @@ import { buildSchedule, compareSummaries, summarizeSchedule } from './roomStatus
  * Capa de acceso a datos. Los componentes solo usan estas funciones, así que
  * pasar de mock a la API real consiste en definir VITE_API_URL.
  *
- * Los endpoints de la API son tentativos y deben alinearse con el backend.
+ * Las respuestas de la API (Sequelize) se adaptan aquí a los tipos del
+ * frontend, para que los componentes no dependan del formato del backend.
  */
+
+/** Edificios del alcance del MVP; el backend también entrega otros (ej. C). */
+const MVP_BUILDINGS: readonly string[] = ['A', 'B', 'BC', 'K'] satisfies BuildingCode[]
+
+function isMvpBuilding(code: string): code is BuildingCode {
+  return MVP_BUILDINGS.includes(code)
+}
+
+interface ApiBuilding extends Building {
+  id: number
+}
+
+interface ApiRoom {
+  name: string
+  buildingId: number
+  capacity: number | null
+  floor: number | null
+}
+
+/** "08:20:00" → "08:20". */
+function toHourMinute(time: string): string {
+  return time.slice(0, 5)
+}
 
 /** Memoriza datos que no cambian durante la sesión; si la carga falla, se reintenta. */
 function cached<T>(load: () => Promise<T>): () => Promise<T> {
@@ -44,42 +68,61 @@ function cached<T>(load: () => Promise<T>): () => Promise<T> {
   }
 }
 
-export const getBuildings = cached((): Promise<Building[]> => {
+/** Edificios de la API (con su id interno), solo los del MVP. */
+const getApiBuildings = cached(async (): Promise<ApiBuilding[]> => {
+  const buildings = await getJson<ApiBuilding[]>('/buildings')
+  return buildings.filter((building) => isMvpBuilding(building.code))
+})
+
+export const getBuildings = cached(async (): Promise<Building[]> => {
   if (USE_MOCK) return mockResponse(MOCK_BUILDINGS)
-  return getJson<Building[]>('/buildings')
+  const buildings = await getApiBuildings()
+  return buildings.map(({ code, name, description }) => ({ code, name, description }))
 })
 
-export const getDays = cached((): Promise<Day[]> => {
+export const getDays = cached(async (): Promise<Day[]> => {
   if (USE_MOCK) return mockResponse(MOCK_DAYS)
-  return getJson<Day[]>('/days')
+  const days = await getJson<Day[]>('/days')
+  return days.map(({ code, name, shortName }) => ({ code, name, shortName }))
 })
 
-export const getModules = cached((): Promise<TimeModule[]> => {
+export const getModules = cached(async (): Promise<TimeModule[]> => {
   if (USE_MOCK) return mockResponse(MOCK_MODULES)
-  return getJson<TimeModule[]>('/modules')
+  const modules = await getJson<TimeModule[]>('/modules')
+  return modules
+    .map(({ number, start, end }) => ({ number, start: toHourMinute(start), end: toHourMinute(end) }))
+    .sort((a, b) => a.number - b.number)
 })
 
-export function getRooms(buildingCode?: BuildingCode): Promise<Room[]> {
+/** Salas (sin caché: el administrador puede editar piso y capacidad). */
+export async function getRooms(buildingCode?: BuildingCode): Promise<Room[]> {
   if (USE_MOCK) {
     return mockResponse(
       buildingCode ? MOCK_ROOMS.filter((room) => room.buildingCode === buildingCode) : MOCK_ROOMS,
     )
   }
-  return getJson<Room[]>('/rooms', { building: buildingCode })
+  const [buildings, apiRooms] = await Promise.all([getApiBuildings(), getJson<ApiRoom[]>('/rooms')])
+  const codeById = new Map(buildings.map((building) => [building.id, building.code]))
+
+  const rooms: Room[] = []
+  for (const { name, buildingId, capacity, floor } of apiRooms) {
+    const code = codeById.get(buildingId)
+    if (!code || (buildingCode && code !== buildingCode)) continue
+    // La API identifica las salas por su nombre de BuscaCursos (ej. "B12").
+    rooms.push({ id: name, name, buildingCode: code, capacity, floor, features: [] })
+  }
+  return rooms
 }
 
 /** Una sala por id, o null si no existe. */
 export async function getRoom(roomId: string): Promise<Room | null> {
   if (USE_MOCK) return mockResponse(MOCK_ROOMS.find((room) => room.id === roomId) ?? null)
-  try {
-    return await getJson<Room>(`/rooms/${encodeURIComponent(roomId)}`)
-  } catch (error) {
-    if (error instanceof ApiError && error.status === 404) return null
-    throw error
-  }
+  // La API no tiene GET /rooms/:id; son pocas salas, así que se busca en la lista.
+  const rooms = await getRooms()
+  return rooms.find((room) => room.id === roomId) ?? null
 }
 
-export function getAvailability(filters: AvailabilityFilters = {}): Promise<Availability[]> {
+export async function getAvailability(filters: AvailabilityFilters = {}): Promise<Availability[]> {
   if (USE_MOCK) {
     const { buildingCode, roomId, day, module, onlyFree } = filters
     return mockResponse(
@@ -93,13 +136,14 @@ export function getAvailability(filters: AvailabilityFilters = {}): Promise<Avai
       ),
     )
   }
-  return getJson<Availability[]>('/availability', {
+  const availability = await getJson<Availability[]>('/availability', {
     building: filters.buildingCode,
     room: filters.roomId,
     day: filters.day,
     module: filters.module,
     onlyFree: filters.onlyFree,
   })
+  return availability.filter((item) => isMvpBuilding(item.buildingCode))
 }
 
 /** Salas con su estado en un día y módulo, ordenadas (libres primero). */
