@@ -48,6 +48,20 @@ export const FEATURE_INFO: Record<RoomFeature, { icon: string; label: string }> 
 }
 
 /** Texto corto del próximo cambio de estado ("Libre hasta las 14:50 (M5)"). */
+/** Capacidad de la sala; la ingresa el administrador. */
+export function formatCapacity(
+  capacity: number | null,
+  unit = 'personas',
+  emptyText = 'Sin información',
+): string {
+  return capacity === null ? emptyText : `${capacity} ${unit}`
+}
+
+/** Piso de la sala; lo ingresa el administrador. */
+export function formatFloor(floor: number | null): string {
+  return floor === null ? 'Piso sin información' : `Piso ${floor}`
+}
+
 export function transitionText(status: RoomStatus, transition: StatusTransition | null): string {
   if (status === 'nodata') return 'Sin información de BuscaCursos'
   if (!transition) return status === 'free' ? 'Libre el resto del día' : 'Ocupada el resto del día'

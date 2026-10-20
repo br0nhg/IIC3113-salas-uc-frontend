@@ -31,7 +31,7 @@ export default function RoomStatusPanel({ status, course, transition, context, l
       <p className={cn('mt-1 text-body-sm', style.text)}>
         {course && (
           <>
-            Clase: <strong>{course.code}-{course.section}</strong> {course.name}.{' '}
+            Clase: <strong>{course.code}{course.section !== null && `-${course.section}`}</strong> {course.name}.{' '}
           </>
         )}
         {status === 'nodata'

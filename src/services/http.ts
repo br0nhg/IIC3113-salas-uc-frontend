@@ -29,7 +29,10 @@ function buildHeaders(extra: Record<string, string> = {}): Record<string, string
 
 async function parseResponse<T>(response: Response, path: string): Promise<T> {
   if (!response.ok) {
-    throw new ApiError(response.status, `Error ${response.status} al consultar ${path}`)
+    // Si la API explica el error ({ error: "..." }), se usa ese mensaje.
+    const body = (await response.json().catch(() => null)) as { error?: unknown } | null
+    const message = typeof body?.error === 'string' ? body.error : `Error ${response.status} al consultar ${path}`
+    throw new ApiError(response.status, message)
   }
   if (response.status === 204) return undefined as T
   return (await response.json()) as T
@@ -46,7 +49,7 @@ export async function getJson<T>(path: string, params: QueryParams = {}): Promis
   return parseResponse<T>(response, path)
 }
 
-async function sendJson<T>(method: 'POST' | 'DELETE', path: string, body?: unknown): Promise<T> {
+async function sendJson<T>(method: 'POST' | 'PATCH' | 'DELETE', path: string, body?: unknown): Promise<T> {
   const response = await fetch(`${API_URL}${path}`, {
     method,
     headers: buildHeaders(body === undefined ? {} : { 'Content-Type': 'application/json' }),
@@ -58,6 +61,11 @@ async function sendJson<T>(method: 'POST' | 'DELETE', path: string, body?: unkno
 /** POST con cuerpo JSON a la API del backend. */
 export function postJson<T>(path: string, body?: unknown): Promise<T> {
   return sendJson<T>('POST', path, body)
+}
+
+/** PATCH con cuerpo JSON a la API del backend. */
+export function patchJson<T>(path: string, body?: unknown): Promise<T> {
+  return sendJson<T>('PATCH', path, body)
 }
 
 /** DELETE a la API del backend. */

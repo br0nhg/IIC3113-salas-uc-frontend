@@ -1,5 +1,4 @@
 import type { Report, ReportInput } from '../types'
-import { USE_MOCK } from './config'
 import { getJson, postJson } from './http'
 import { currentUserId, mockId, readUserData, writeUserData } from './mock/userStore'
 import { mockError, mockResponse } from './mock/utils'
@@ -8,6 +7,9 @@ import { mockError, mockResponse } from './mock/utils'
  * Reportes de problemas en salas enviados por el usuario con cuenta.
  * Endpoints tentativos: GET /me/reports, POST /reports.
  */
+
+// El backend aún no implementa /me/reports ni /reports: se guarda en el navegador por usuario.
+const USE_MOCK = true
 
 const KEY = 'reports'
 

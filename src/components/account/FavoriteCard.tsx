@@ -1,7 +1,7 @@
 import { Link, type To } from 'react-router-dom'
 import type { RoomSummary } from '../../types'
 import { cn } from '../../utils/cn'
-import { STATUS_STYLES, transitionText } from '../rooms/roomPresentation'
+import { formatCapacity, formatFloor, STATUS_STYLES, transitionText } from '../rooms/roomPresentation'
 import StatusBadge from '../rooms/StatusBadge'
 import Icon from '../ui/Icon'
 
@@ -31,7 +31,8 @@ export default function FavoriteCard({ roomId, summary, to, onRemove }: Favorite
         {summary ? (
           <>
             <p className="mt-0.5 text-xs text-outline">
-              {summary.building.name} · Piso {summary.room.floor} · {summary.room.capacity} personas
+              {summary.building.name} · {formatFloor(summary.room.floor)} ·{' '}
+              {formatCapacity(summary.room.capacity, 'personas', 'Capacidad sin información')}
             </p>
             <p className={cn('mt-2 text-xs font-medium', STATUS_STYLES[summary.status].text)}>
               {transitionText(summary.status, summary.transition)}

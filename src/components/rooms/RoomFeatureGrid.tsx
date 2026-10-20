@@ -1,11 +1,11 @@
 import type { Room } from '../../types'
 import Icon from '../ui/Icon'
-import { FEATURE_INFO } from './roomPresentation'
+import { FEATURE_INFO, formatCapacity } from './roomPresentation'
 
 /** Capacidad y equipamiento de la sala en una grilla de dos columnas. */
 export default function RoomFeatureGrid({ room }: { room: Room }) {
   const items = [
-    { icon: 'groups', label: 'Capacidad', value: `${room.capacity} personas` },
+    { icon: 'groups', label: 'Capacidad', value: formatCapacity(room.capacity) },
     ...room.features.map((feature) => ({
       icon: FEATURE_INFO[feature].icon,
       label: 'Equipamiento',

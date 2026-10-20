@@ -2,7 +2,14 @@ import { Link, type To } from 'react-router-dom'
 import type { RoomSummary } from '../../types'
 import { cn } from '../../utils/cn'
 import Icon from '../ui/Icon'
-import { FEATURE_INFO, STATUS_STYLES, transitionIcon, transitionText } from './roomPresentation'
+import {
+  FEATURE_INFO,
+  formatCapacity,
+  formatFloor,
+  STATUS_STYLES,
+  transitionIcon,
+  transitionText,
+} from './roomPresentation'
 import StatusBadge from './StatusBadge'
 
 interface RoomCardProps {
@@ -46,7 +53,7 @@ export default function RoomCard({ summary, to, selected = false }: RoomCardProp
           <h2 className="text-headline-md text-primary transition-colors group-hover:text-secondary">
             {room.name}
           </h2>
-          <p className="text-body-sm text-outline">Piso {room.floor}</p>
+          <p className="text-body-sm text-outline">{formatFloor(room.floor)}</p>
         </div>
         <StatusBadge status={status} />
       </div>
@@ -56,7 +63,7 @@ export default function RoomCard({ summary, to, selected = false }: RoomCardProp
           <dt className="flex items-center gap-1.5">
             <Icon name="group" className="text-[16px]" /> Capacidad
           </dt>
-          <dd className="font-medium text-on-surface">{room.capacity} personas</dd>
+          <dd className="font-medium text-on-surface">{formatCapacity(room.capacity)}</dd>
         </div>
         <div className="flex items-center justify-between gap-3 text-outline">
           {course ? (

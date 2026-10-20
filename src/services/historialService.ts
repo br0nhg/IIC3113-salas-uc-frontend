@@ -1,5 +1,4 @@
 import type { HistoryEntry, HistoryEntryInput } from '../types'
-import { USE_MOCK } from './config'
 import { deleteJson, getJson, postJson } from './http'
 import { currentUserId, mockId, readUserData, writeUserData } from './mock/userStore'
 import { mockResponse } from './mock/utils'
@@ -8,6 +7,9 @@ import { mockResponse } from './mock/utils'
  * Historial de consultas del usuario con cuenta (los invitados no tienen).
  * Endpoints tentativos: GET /me/history, POST /me/history, DELETE /me/history.
  */
+
+// El backend aún no implementa /me/history: se guarda en el navegador por usuario.
+const USE_MOCK = true
 
 const KEY = 'history'
 const MAX_ENTRIES = 30
