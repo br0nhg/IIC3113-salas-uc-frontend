@@ -119,6 +119,19 @@ export interface RoomDetail {
   schedule: ScheduleSlot[]
 }
 
+/** Cronograma de una sala en un día de la semana. */
+export interface DaySchedule {
+  day: DayCode
+  schedule: ScheduleSlot[]
+}
+
+/** Horario semanal de una sala: un cronograma por día (lunes a sábado). */
+export interface WeeklySchedule {
+  room: Room
+  building: Building
+  days: DaySchedule[]
+}
+
 export interface SyncStatus {
   /** Fecha ISO de la última actualización de datos desde BuscaCursos. */
   lastSyncAt: string

@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import FavoritesSection from '../components/account/FavoritesSection'
 import HistorySection from '../components/account/HistorySection'
 import ReportsSection from '../components/account/ReportsSection'
+import WeeklyFavoritesPanel from '../components/account/WeeklyFavoritesPanel'
 import ReportModal from '../components/reports/ReportModal'
 import Button from '../components/ui/Button'
 import ButtonLink from '../components/ui/ButtonLink'
@@ -90,6 +91,7 @@ export default function FavoritesReportsPage() {
         <div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-6 p-margin md:p-margin-tablet lg:grid-cols-3 lg:p-margin-desktop">
           <div className="space-y-6 lg:col-span-2">
             <FavoritesSection catalog={catalog} favorites={favorites} />
+            <WeeklyFavoritesPanel catalog={catalog} favorites={favorites} />
             <HistorySection catalog={catalog} />
           </div>
           <div className="space-y-6">

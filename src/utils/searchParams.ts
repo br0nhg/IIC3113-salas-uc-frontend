@@ -35,6 +35,14 @@ export function parseSearchParams(
   }
 }
 
+/** URL del detalle de una sala en un día y módulo (ej. /salas/B12?dia=L&modulo=3). */
+export function roomSlotUrl(roomId: string, day: DayCode, module: ModuleNumber): string {
+  const params = new URLSearchParams()
+  params.set(PARAM.day, day)
+  params.set(PARAM.module, String(module))
+  return `/salas/${encodeURIComponent(roomId)}?${params.toString()}`
+}
+
 /** URL de búsqueda para unos filtros guardados (ej. desde el historial). */
 export function searchUrl(filters: SearchFilters): string {
   const params = new URLSearchParams()

@@ -11,6 +11,7 @@ import type {
   RoomSummaryFilters,
   SyncStatus,
   TimeModule,
+  WeeklySchedule,
 } from '../types'
 import { USE_MOCK } from './config'
 import { getJson } from './http'
@@ -179,6 +180,30 @@ export async function getRoomDetail(roomId: string, day: DayCode): Promise<RoomD
   const building = room && buildings.find((b) => b.code === room.buildingCode)
   if (!room || !building) return null
   return { room, building, day, schedule: buildSchedule(modules, availability) }
+}
+
+/** Horario semanal de una sala (un cronograma por día), o null si no existe. */
+export async function getWeeklySchedule(roomId: string): Promise<WeeklySchedule | null> {
+  const [room, buildings, days, modules, availability] = await Promise.all([
+    getRoom(roomId),
+    getBuildings(),
+    getDays(),
+    getModules(),
+    getAvailability({ roomId }),
+  ])
+  const building = room && buildings.find((b) => b.code === room.buildingCode)
+  if (!room || !building) return null
+  return {
+    room,
+    building,
+    days: days.map(({ code }) => ({
+      day: code,
+      schedule: buildSchedule(
+        modules,
+        availability.filter((item) => item.day === code),
+      ),
+    })),
+  }
 }
 
 /** Fecha de la última actualización de datos desde BuscaCursos. */
