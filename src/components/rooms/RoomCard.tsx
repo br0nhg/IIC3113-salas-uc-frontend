@@ -20,7 +20,7 @@ interface RoomCardProps {
 
 /** Tarjeta de sala con estado, capacidad, recursos o clase en curso y próximo cambio. */
 export default function RoomCard({ summary, to, selected = false }: RoomCardProps) {
-  const { room, building, status, course, transition } = summary
+  const { room, building, status, course, reservation, transition } = summary
   const style = STATUS_STYLES[status]
   const resources = room.features
     .filter((feature) => feature !== 'wifi')
@@ -66,7 +66,16 @@ export default function RoomCard({ summary, to, selected = false }: RoomCardProp
           <dd className="font-medium text-on-surface">{formatCapacity(room.capacity)}</dd>
         </div>
         <div className="flex items-center justify-between gap-3 text-outline">
-          {course ? (
+          {reservation ? (
+            <>
+              <dt className="flex shrink-0 items-center gap-1.5">
+                <Icon name="event_busy" className="text-[16px]" /> Reserva
+              </dt>
+              <dd className="truncate text-xs font-medium text-on-surface" title={reservation.reason}>
+                {reservation.reason}
+              </dd>
+            </>
+          ) : course ? (
             <>
               <dt className="flex shrink-0 items-center gap-1.5">
                 <Icon name="school" className="text-[16px]" /> Clase

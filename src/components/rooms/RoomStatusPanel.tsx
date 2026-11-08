@@ -1,10 +1,11 @@
-import type { CourseOccupancy, RoomStatus, StatusTransition } from '../../types'
+import type { CourseOccupancy, OfficialReservationOccupancy, RoomStatus, StatusTransition } from '../../types'
 import { cn } from '../../utils/cn'
 import { STATUS_STYLES, transitionText } from './roomPresentation'
 
 interface RoomStatusPanelProps {
   status: RoomStatus
   course: CourseOccupancy | null
+  reservation: OfficialReservationOccupancy | null
   transition: StatusTransition | null
   /** Contexto de la consulta, ej. "Lunes · M4 (12:20 – 13:30)". */
   context: string
@@ -13,7 +14,7 @@ interface RoomStatusPanelProps {
 }
 
 /** Recuadro destacado con el estado de la sala en el módulo consultado. */
-export default function RoomStatusPanel({ status, course, transition, context, live }: RoomStatusPanelProps) {
+export default function RoomStatusPanel({ status, course, reservation, transition, context, live }: RoomStatusPanelProps) {
   const style = STATUS_STYLES[status]
 
   return (
@@ -32,6 +33,11 @@ export default function RoomStatusPanel({ status, course, transition, context, l
         {course && (
           <>
             Clase: <strong>{course.code}{course.section !== null && `-${course.section}`}</strong> {course.name}.{' '}
+          </>
+        )}
+        {reservation && (
+          <>
+            Reserva oficial: <strong>{reservation.reason}</strong>.{' '}
           </>
         )}
         {status === 'nodata'

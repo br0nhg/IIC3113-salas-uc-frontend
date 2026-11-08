@@ -20,6 +20,7 @@ export function buildSchedule(modules: TimeModule[], availability: Availability[
       module,
       isFree: record ? record.isFree : null,
       course: record?.course ?? null,
+      reservation: record?.reservation ?? null,
     }
   })
 }
@@ -28,10 +29,12 @@ export function buildSchedule(modules: TimeModule[], availability: Availability[
 export function summarizeSchedule(
   schedule: ScheduleSlot[],
   module: ModuleNumber,
-): Pick<RoomSummary, 'status' | 'course' | 'transition'> {
+): Pick<RoomSummary, 'status' | 'course' | 'reservation' | 'transition'> {
   const index = schedule.findIndex((slot) => slot.module.number === module)
   const slot = schedule[index]
-  if (!slot || slot.isFree === null) return { status: 'nodata', course: null, transition: null }
+  if (!slot || slot.isFree === null) {
+    return { status: 'nodata', course: null, reservation: null, transition: null }
+  }
 
   const later = schedule.slice(index + 1)
   if (slot.isFree) {
@@ -39,6 +42,7 @@ export function summarizeSchedule(
     return {
       status: 'free',
       course: null,
+      reservation: null,
       transition: nextBusy ? { kind: 'busy-from', module: nextBusy.module } : null,
     }
   }
@@ -47,6 +51,7 @@ export function summarizeSchedule(
   return {
     status: later[0]?.isFree === true ? 'soon' : 'busy',
     course: slot.course,
+    reservation: slot.reservation,
     transition: nextFree ? { kind: 'free-from', module: nextFree.module } : null,
   }
 }

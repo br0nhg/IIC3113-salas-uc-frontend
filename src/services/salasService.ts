@@ -25,6 +25,7 @@ import {
 import { getMockLastSyncAt } from './mock/sync'
 import { mockResponse } from './mock/utils'
 import { buildSchedule, compareSummaries, summarizeSchedule } from './roomStatus'
+import { dateForDay, getDisplayedWeekStart } from '../utils/schedule'
 
 /*
  * Capa de acceso a datos. Los componentes solo usan estas funciones, así que
@@ -143,6 +144,8 @@ export async function getAvailability(filters: AvailabilityFilters = {}): Promis
     day: filters.day,
     module: filters.module,
     onlyFree: filters.onlyFree,
+    date: filters.date,
+    weekStart: filters.weekStart,
   })
   return availability.filter((item) => isMvpBuilding(item.buildingCode))
 }
@@ -153,7 +156,11 @@ export async function getRoomSummaries(filters: RoomSummaryFilters): Promise<Roo
     getBuildings(),
     getRooms(filters.buildingCode),
     getModules(),
-    getAvailability({ day: filters.day, buildingCode: filters.buildingCode }),
+    getAvailability({
+      day: filters.day,
+      buildingCode: filters.buildingCode,
+      date: dateForDay(filters.day),
+    }),
   ])
 
   const summaries: RoomSummary[] = []
@@ -175,7 +182,7 @@ export async function getRoomDetail(roomId: string, day: DayCode): Promise<RoomD
     getRoom(roomId),
     getBuildings(),
     getModules(),
-    getAvailability({ roomId, day }),
+    getAvailability({ roomId, day, date: dateForDay(day) }),
   ])
   const building = room && buildings.find((b) => b.code === room.buildingCode)
   if (!room || !building) return null
@@ -189,7 +196,7 @@ export async function getWeeklySchedule(roomId: string): Promise<WeeklySchedule 
     getBuildings(),
     getDays(),
     getModules(),
-    getAvailability({ roomId }),
+    getAvailability({ roomId, weekStart: getDisplayedWeekStart() }),
   ])
   const building = room && buildings.find((b) => b.code === room.buildingCode)
   if (!room || !building) return null

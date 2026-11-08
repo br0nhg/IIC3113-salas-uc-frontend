@@ -17,6 +17,7 @@ const MAIN_ITEMS: AdminNavItem[] = [
   { label: 'Edificios', icon: 'apartment' },
   { label: 'Usuarios', icon: 'group' },
   { label: 'Reportes', icon: 'flag', showReportsBadge: true },
+  { label: 'Reservas oficiales', icon: 'event_busy', to: '/admin#reservas-oficiales' },
   { label: 'Sincronización', icon: 'sync_alt' },
 ]
 

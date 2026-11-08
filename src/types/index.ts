@@ -49,6 +49,13 @@ export interface CourseOccupancy {
   name: string
 }
 
+/** Reserva oficial cargada por un administrador. Tiene prioridad sobre BuscaCursos. */
+export interface OfficialReservationOccupancy {
+  /** Fecha YYYY-MM-DD. */
+  date: string
+  reason: string
+}
+
 /** Estado de una sala en un día y módulo específicos. */
 export interface Availability {
   roomId: string
@@ -58,6 +65,7 @@ export interface Availability {
   isFree: boolean
   /** Presente solo cuando la sala está ocupada. */
   course: CourseOccupancy | null
+  reservation: OfficialReservationOccupancy | null
 }
 
 /** Filtros opcionales para consultar disponibilidad. */
@@ -67,6 +75,10 @@ export interface AvailabilityFilters {
   day?: DayCode
   module?: ModuleNumber
   onlyFree?: boolean
+  /** Fecha YYYY-MM-DD para aplicar reservas oficiales. */
+  date?: string
+  /** Lunes YYYY-MM-DD de la semana consultada. */
+  weekStart?: string
 }
 
 /* ---------- Estado y detalle de salas ---------- */
@@ -85,6 +97,7 @@ export interface ScheduleSlot {
   module: TimeModule
   isFree: boolean | null
   course: CourseOccupancy | null
+  reservation: OfficialReservationOccupancy | null
 }
 
 /** Próximo cambio de estado de una sala dentro del mismo día. */
@@ -101,6 +114,8 @@ export interface RoomSummary {
   status: RoomStatus
   /** Curso en el módulo consultado (solo si está ocupada). */
   course: CourseOccupancy | null
+  /** Reserva oficial en el módulo consultado, si existe. */
+  reservation: OfficialReservationOccupancy | null
   /** null: el estado se mantiene el resto del día. */
   transition: StatusTransition | null
 }
@@ -205,6 +220,13 @@ export interface AdminMetrics {
 export interface AdminRoomRow extends RoomSummary {
   /** Fecha ISO de la última actualización de datos de esta sala. */
   lastSyncAt: string
+}
+
+export interface OfficialReservationsImportResult {
+  importedSlots: number
+  importedReservations: number
+  replacedWeeks: { start: string; end: string }[]
+  unknownRooms: string[]
 }
 
 /* ---------- Autenticación ---------- */

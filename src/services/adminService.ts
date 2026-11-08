@@ -1,4 +1,11 @@
-import type { AdminMetrics, AdminRoomRow, Room, RoomSummaryFilters, SyncStatus } from '../types'
+import type {
+  AdminMetrics,
+  AdminRoomRow,
+  OfficialReservationsImportResult,
+  Room,
+  RoomSummaryFilters,
+  SyncStatus,
+} from '../types'
 import { USE_MOCK } from './config'
 import { ApiError, getJson, patchJson, postJson } from './http'
 import { MOCK_ROOMS } from './mock/data'
@@ -87,4 +94,18 @@ export async function updateRoomInfo(
     return mockResponse(undefined)
   }
   await patchJson(`/admin/rooms/${encodeURIComponent(roomId)}`, info)
+}
+
+/** Importa el JSON de reservas y reemplaza las semanas que aparecen en él. */
+export function importOfficialReservations(data: unknown): Promise<OfficialReservationsImportResult> {
+  if (USE_MOCK) {
+    const rows = Array.isArray(data) ? data : []
+    return mockResponse({
+      importedSlots: rows.length,
+      importedReservations: rows.length,
+      replacedWeeks: [],
+      unknownRooms: [],
+    })
+  }
+  return postJson<OfficialReservationsImportResult>('/admin/official-reservations/import', data)
 }

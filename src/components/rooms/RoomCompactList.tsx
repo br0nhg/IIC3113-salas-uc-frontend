@@ -17,7 +17,7 @@ export default function RoomCompactList({ summaries, linkTo, selectedId }: RoomC
     <div className="overflow-hidden rounded-lg border border-outline-variant/40 bg-surface-container-lowest shadow-card">
       {/* Móvil: filas táctiles */}
       <ul className="divide-y divide-surface-container-high md:hidden">
-        {summaries.map(({ room, building, status, transition }) => (
+        {summaries.map(({ room, building, status, reservation, transition }) => (
           <li key={room.id}>
             <Link
               to={linkTo(room.id)}
@@ -32,7 +32,7 @@ export default function RoomCompactList({ summaries, linkTo, selectedId }: RoomC
                   </span>
                 </div>
                 <p className={cn('text-body-sm', STATUS_STYLES[status].text)}>
-                  {transitionText(status, transition)}
+                  {reservation ? `Reserva oficial: ${reservation.reason}` : transitionText(status, transition)}
                 </p>
               </div>
               <StatusBadge status={status} />
@@ -54,7 +54,7 @@ export default function RoomCompactList({ summaries, linkTo, selectedId }: RoomC
           </tr>
         </thead>
         <tbody className="divide-y divide-surface-container-high">
-          {summaries.map(({ room, building, status, transition }) => (
+          {summaries.map(({ room, building, status, reservation, transition }) => (
             <tr
               key={room.id}
               className={cn(
@@ -78,7 +78,7 @@ export default function RoomCompactList({ summaries, linkTo, selectedId }: RoomC
                 <StatusBadge status={status} />
               </td>
               <td className={cn('px-4 py-2.5 text-xs', STATUS_STYLES[status].text)}>
-                {transitionText(status, transition)}
+                {reservation ? `Reserva oficial: ${reservation.reason}` : transitionText(status, transition)}
               </td>
             </tr>
           ))}
