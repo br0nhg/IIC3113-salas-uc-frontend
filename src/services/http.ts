@@ -40,7 +40,8 @@ async function parseResponse<T>(response: Response, path: string): Promise<T> {
 
 /** GET a la API del backend que devuelve JSON. */
 export async function getJson<T>(path: string, params: QueryParams = {}): Promise<T> {
-  const url = new URL(`${API_URL}${path}`)
+  // El segundo argumento permite usar una URL relativa como /api en producción.
+  const url = new URL(`${API_URL}${path}`, window.location.origin)
   for (const [key, value] of Object.entries(params)) {
     if (value !== undefined) url.searchParams.set(key, String(value))
   }
