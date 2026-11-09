@@ -229,6 +229,22 @@ export interface OfficialReservationsImportResult {
   unknownRooms: string[]
 }
 
+export interface AdminOfficialReservation {
+  id: string
+  roomName: string
+  /** Fecha YYYY-MM-DD. */
+  date: string
+  modules: ModuleNumber[]
+  reason: string
+}
+
+export interface OfficialReservationInput {
+  sala: string
+  fecha: string
+  modulos: number[] | string
+  motivo: string
+}
+
 /* ---------- Autenticación ---------- */
 
 export type UserRole = 'guest' | 'student' | 'admin'

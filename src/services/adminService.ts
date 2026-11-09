@@ -1,13 +1,15 @@
 import type {
   AdminMetrics,
+  AdminOfficialReservation,
   AdminRoomRow,
   OfficialReservationsImportResult,
+  OfficialReservationInput,
   Room,
   RoomSummaryFilters,
   SyncStatus,
 } from '../types'
 import { USE_MOCK } from './config'
-import { ApiError, getJson, patchJson, postJson } from './http'
+import { ApiError, deleteJson, getJson, patchJson, postJson } from './http'
 import { MOCK_ROOMS } from './mock/data'
 import { getMockLastSyncAt, markMockSynced } from './mock/sync'
 import { mockResponse } from './mock/utils'
@@ -108,4 +110,30 @@ export function importOfficialReservations(data: unknown): Promise<OfficialReser
     })
   }
   return postJson<OfficialReservationsImportResult>('/admin/official-reservations/import', data)
+}
+
+export function getOfficialReservations(from?: string): Promise<AdminOfficialReservation[]> {
+  if (USE_MOCK) return mockResponse([])
+  return getJson<AdminOfficialReservation[]>('/admin/official-reservations', { from })
+}
+
+export function updateOfficialReservation(
+  id: string,
+  input: OfficialReservationInput,
+): Promise<AdminOfficialReservation> {
+  if (USE_MOCK) {
+    return mockResponse({
+      id,
+      roomName: input.sala,
+      date: input.fecha,
+      modules: [] as never[],
+      reason: input.motivo,
+    })
+  }
+  return patchJson<AdminOfficialReservation>(`/admin/official-reservations/${encodeURIComponent(id)}`, input)
+}
+
+export function deleteOfficialReservation(id: string): Promise<void> {
+  if (USE_MOCK) return mockResponse(undefined)
+  return deleteJson(`/admin/official-reservations/${encodeURIComponent(id)}`)
 }

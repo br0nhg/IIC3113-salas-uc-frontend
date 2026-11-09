@@ -3,6 +3,7 @@ import AdminLayout from '../layouts/AdminLayout'
 import AppLayout from '../layouts/AppLayout'
 import AuthLayout from '../layouts/AuthLayout'
 import AdminDashboardPage from '../pages/admin/AdminDashboardPage'
+import AdminReservationsPage from '../pages/admin/AdminReservationsPage'
 import RegisterPage from '../pages/auth/RegisterPage'
 import WelcomePage from '../pages/auth/WelcomePage'
 import FavoritesReportsPage from '../pages/FavoritesReportsPage'
@@ -25,7 +26,10 @@ const router = createBrowserRouter([
         <AdminLayout />
       </RequireRole>
     ),
-    children: [{ index: true, element: <AdminDashboardPage /> }],
+    children: [
+      { index: true, element: <AdminDashboardPage /> },
+      { path: 'reservas', element: <AdminReservationsPage /> },
+    ],
   },
   {
     element: <AppLayout />,

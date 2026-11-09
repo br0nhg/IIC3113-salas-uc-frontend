@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import AdminRoomsTable from '../../components/admin/AdminRoomsTable'
 import MetricCard from '../../components/admin/MetricCard'
-import OfficialReservationsImport from '../../components/admin/OfficialReservationsImport'
 import RoomInfoModal from '../../components/admin/RoomInfoModal'
 import SyncStatusPill from '../../components/admin/SyncStatusPill'
 import Button from '../../components/ui/Button'
@@ -158,10 +157,6 @@ function Dashboard({ catalog }: { catalog: Catalog }) {
           }
         />
       </div>
-
-      <OfficialReservationsImport
-        onImported={() => setSyncVersion((version) => version + 1)}
-      />
 
       <AdminRoomsTable
         rows={rowsState?.rows ?? null}
