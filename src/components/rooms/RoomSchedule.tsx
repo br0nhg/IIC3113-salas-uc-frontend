@@ -21,7 +21,7 @@ export default function RoomSchedule({ schedule, day, dayName, selectedModule }:
         {first && last && <span className="text-[11px] text-outline">M{first} a M{last}</span>}
       </div>
       <ol className="space-y-1.5 text-xs">
-        {schedule.map(({ module, isFree, course }) => {
+        {schedule.map(({ module, isFree, course, reservation }) => {
           const selected = module.number === selectedModule
           const past = isModulePast(module, day)
           return (
@@ -52,11 +52,13 @@ export default function RoomSchedule({ schedule, day, dayName, selectedModule }:
                   isFree === false && 'text-status-busy',
                   isFree === null && 'text-status-nodata',
                 )}
-                title={course?.name}
+                title={reservation?.reason ?? course?.name}
               >
                 {isFree === null
                   ? 'Sin datos'
-                  : course
+                  : reservation
+                    ? `Reserva: ${reservation.reason}`
+                    : course
                     ? `${course.code} ${course.name}`
                     : 'Libre'}
               </span>

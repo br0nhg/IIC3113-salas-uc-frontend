@@ -4,6 +4,28 @@ import type { DayCode, ModuleNumber, TimeModule } from '../types'
 const DAY_CODES_BY_JS_DAY: (DayCode | null)[] = [null, 'L', 'M', 'W', 'J', 'V', 'S']
 const DAY_ORDER: DayCode[] = ['L', 'M', 'W', 'J', 'V', 'S']
 
+function toLocalIsoDate(date: Date): string {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+/** Lunes de la semana mostrada. En domingo se considera la semana siguiente. */
+export function getDisplayedWeekStart(now = new Date()): string {
+  const date = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const jsDay = date.getDay()
+  date.setDate(date.getDate() + (jsDay === 0 ? 1 : 1 - jsDay))
+  return toLocalIsoDate(date)
+}
+
+/** Fecha calendario correspondiente a un código de día en la semana mostrada. */
+export function dateForDay(day: DayCode, now = new Date()): string {
+  const monday = new Date(`${getDisplayedWeekStart(now)}T12:00:00`)
+  monday.setDate(monday.getDate() + DAY_ORDER.indexOf(day))
+  return toLocalIsoDate(monday)
+}
+
 /** Código del día actual, o null si es domingo. */
 export function getTodayCode(now = new Date()): DayCode | null {
   return DAY_CODES_BY_JS_DAY[now.getDay()] ?? null

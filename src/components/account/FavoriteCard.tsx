@@ -35,7 +35,9 @@ export default function FavoriteCard({ roomId, summary, to, onRemove }: Favorite
               {formatCapacity(summary.room.capacity, 'personas', 'Capacidad sin información')}
             </p>
             <p className={cn('mt-2 text-xs font-medium', STATUS_STYLES[summary.status].text)}>
-              {transitionText(summary.status, summary.transition)}
+              {summary.reservation
+                ? `Reserva oficial: ${summary.reservation.reason}`
+                : transitionText(summary.status, summary.transition)}
             </p>
           </>
         ) : (

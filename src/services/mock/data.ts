@@ -116,6 +116,7 @@ function buildAvailability(): Availability[] {
           module: module.number,
           isFree,
           course: isFree || !course ? null : { ...course, section: (h % 5) + 1 },
+          reservation: null,
         })
       }
     }

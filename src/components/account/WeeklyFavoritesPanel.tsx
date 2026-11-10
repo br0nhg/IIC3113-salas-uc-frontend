@@ -130,10 +130,14 @@ function SingleView({
         now={now}
         caption={`Horario semanal de la sala ${roomId}`}
         renderCell={(day, module) => {
-          const { status, course } = slotInfo(schedule, day.code, module.number)
+          const { status, course, reservation } = slotInfo(schedule, day.code, module.number)
           const style = STATUS_STYLES[status]
           const label = `${day.name} M${module.number} (${formatModuleRange(module)}): ${style.label}${
-            course ? `, ${course.code} ${course.name}` : ''
+            reservation
+              ? `, reserva oficial: ${reservation.reason}`
+              : course
+                ? `, ${course.code} ${course.name}`
+                : ''
           }`
           const content = <Icon name={STATUS_ICON[status]} className="text-[16px]" />
           // Solo los módulos libres llevan a la consulta de ese día y módulo.
@@ -280,11 +284,15 @@ function SlotDetail({ day, module, schedules }: { day: Day; module: TimeModule; 
       )}
       {others.length > 0 && (
         <ul className="mt-2 space-y-0.5 text-xs text-outline">
-          {others.map(({ schedule, status, course }) => (
+          {others.map(({ schedule, status, course, reservation }) => (
             <li key={schedule.room.id} className="truncate">
               <span className={cn('font-semibold', STATUS_STYLES[status].text)}>{schedule.room.name}</span>{' '}
               {STATUS_STYLES[status].label.toLowerCase()}
-              {course ? ` · ${course.code} ${course.name}` : ''}
+              {reservation
+                ? ` · Reserva oficial: ${reservation.reason}`
+                : course
+                  ? ` · ${course.code} ${course.name}`
+                  : ''}
             </li>
           ))}
         </ul>
