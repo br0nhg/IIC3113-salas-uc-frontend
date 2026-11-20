@@ -2,6 +2,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import AdminLayout from '../layouts/AdminLayout'
 import AppLayout from '../layouts/AppLayout'
 import AuthLayout from '../layouts/AuthLayout'
+import AccountPage from '../pages/AccountPage'
 import AdminDashboardPage from '../pages/admin/AdminDashboardPage'
 import AdminReservationsPage from '../pages/admin/AdminReservationsPage'
 import RegisterPage from '../pages/auth/RegisterPage'
@@ -38,6 +39,7 @@ const router = createBrowserRouter([
       // En escritorio el detalle se abre como panel lateral; en móvil, como página.
       { path: '/salas/:roomId', element: <SearchPage /> },
       { path: '/favoritos', element: <FavoritesReportsPage /> },
+      { path: '/cuenta', element: <AccountPage /> },
       { path: '*', element: <NotFoundPage /> },
     ],
   },

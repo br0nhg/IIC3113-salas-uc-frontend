@@ -63,9 +63,21 @@ export default function TopNav({ lastSyncAt }: TopNavProps) {
                   <span className="hidden sm:inline">Consola</span>
                 </Link>
               )}
-              <span className="hidden max-w-40 truncate text-body-sm font-medium text-on-surface sm:inline">
-                {user?.name}
-              </span>
+              <Link
+                to="/cuenta"
+                title="Mi cuenta"
+                className="hidden max-w-48 items-center gap-1 truncate rounded px-2 py-1 text-body-sm font-medium text-on-surface hover:bg-surface-container sm:flex"
+              >
+                <Icon name="account_circle" className="text-[20px] text-on-surface-variant" />
+                <span className="truncate">{user?.name}</span>
+              </Link>
+              <Link
+                to="/cuenta"
+                aria-label="Mi cuenta"
+                className="flex size-11 items-center justify-center rounded-lg text-on-surface-variant hover:bg-surface-container sm:hidden"
+              >
+                <Icon name="account_circle" />
+              </Link>
               <button
                 type="button"
                 onClick={() => void logout()}

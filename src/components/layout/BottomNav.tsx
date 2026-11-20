@@ -1,6 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
 import { hasAccount, useAuth } from '../../context/auth-context'
-import { useLogout } from '../../hooks/useLogout'
 import { cn } from '../../utils/cn'
 import Icon from '../ui/Icon'
 import { isNavItemActive, NAV_ITEMS } from './navItems'
@@ -11,7 +10,6 @@ const itemClass =
 /** Navegación inferior fija para móvil. */
 export default function BottomNav() {
   const { user } = useAuth()
-  const logout = useLogout()
   const { pathname, hash } = useLocation()
 
   return (
@@ -34,10 +32,14 @@ export default function BottomNav() {
         )
       })}
       {hasAccount(user) ? (
-        <button type="button" onClick={() => void logout()} className={cn(itemClass, 'text-on-surface-variant')}>
-          <Icon name="logout" className="text-[22px]" />
-          Salir
-        </button>
+        <Link
+          to="/cuenta"
+          aria-current={pathname === '/cuenta' ? 'page' : undefined}
+          className={cn(itemClass, pathname === '/cuenta' ? 'text-secondary' : 'text-on-surface-variant')}
+        >
+          <Icon name="account_circle" filled={pathname === '/cuenta'} className="text-[22px]" />
+          Cuenta
+        </Link>
       ) : (
         <Link to="/" className={cn(itemClass, 'text-on-surface-variant')}>
           <Icon name="person" className="text-[22px]" />

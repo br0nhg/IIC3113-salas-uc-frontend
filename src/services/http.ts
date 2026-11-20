@@ -69,7 +69,7 @@ export function patchJson<T>(path: string, body?: unknown): Promise<T> {
   return sendJson<T>('PATCH', path, body)
 }
 
-/** DELETE a la API del backend. */
-export function deleteJson<T = void>(path: string): Promise<T> {
-  return sendJson<T>('DELETE', path)
+/** DELETE a la API del backend (con cuerpo JSON opcional). */
+export function deleteJson<T = void>(path: string, body?: unknown): Promise<T> {
+  return sendJson<T>('DELETE', path, body)
 }

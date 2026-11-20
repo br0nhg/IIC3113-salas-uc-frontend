@@ -1,6 +1,6 @@
 import type { AuthSession, LoginInput, RegisterInput, User } from '../types'
 import { USE_MOCK } from './config'
-import { postJson, setAuthToken } from './http'
+import { deleteJson, patchJson, postJson, setAuthToken } from './http'
 import { GUEST_USER, MOCK_USERS, type MockUserRecord } from './mock/auth'
 import { mockError, mockResponse } from './mock/utils'
 import { readJson, removeKey, writeJson } from './storage'
@@ -14,6 +14,10 @@ import { readJson, removeKey, writeJson } from './storage'
 
 const SESSION_KEY = 'session'
 const MOCK_USERS_KEY = 'mock-users'
+/** Cambios a las cuentas de prueba fijas (nombre editado o cuenta eliminada). */
+const MOCK_OVERRIDES_KEY = 'mock-user-overrides'
+
+type MockOverrides = Record<string, { name?: string; deleted?: boolean }>
 
 function saveSession(session: AuthSession, remember: boolean): AuthSession {
   removeKey(SESSION_KEY, 'local')
@@ -39,7 +43,22 @@ export function getStoredSession(): AuthSession | null {
 }
 
 function getMockUsers(): MockUserRecord[] {
+  const overrides = readJson<MockOverrides>(MOCK_OVERRIDES_KEY, {})
   return [...MOCK_USERS, ...readJson<MockUserRecord[]>(MOCK_USERS_KEY, [])]
+    .filter((user) => !overrides[user.id]?.deleted)
+    .map((user) => ({ ...user, name: overrides[user.id]?.name ?? user.name }))
+}
+
+function overrideMockUser(id: string, change: MockOverrides[string]): void {
+  const overrides = readJson<MockOverrides>(MOCK_OVERRIDES_KEY, {})
+  writeJson(MOCK_OVERRIDES_KEY, { ...overrides, [id]: { ...overrides[id], ...change } })
+}
+
+/** Sesión actual con los datos del usuario actualizados, en el mismo almacenamiento. */
+function updateStoredUser(user: User): AuthSession {
+  const remember = readJson<AuthSession | null>(SESSION_KEY, null, 'local') !== null
+  const session = getStoredSession()
+  return saveSession({ user, token: session?.token ?? '' }, remember)
 }
 
 function toUser({ password: _password, ...user }: MockUserRecord): User {
@@ -99,4 +118,33 @@ export async function logout(): Promise<void> {
     // Cerrar sesión localmente aunque la API falle.
     await postJson<void>('/auth/logout').catch(() => undefined)
   }
+}
+
+/** Cambia el nombre del usuario con sesión (REQ-04). */
+export async function updateProfile(name: string): Promise<AuthSession> {
+  const trimmed = name.trim()
+  if (USE_MOCK) {
+    const current = getStoredSession()?.user
+    if (!current || current.role === 'guest') return mockError(401, 'Debes iniciar sesión.')
+    if (!trimmed) return mockError(400, 'Ingresa tu nombre.')
+    overrideMockUser(current.id, { name: trimmed })
+    return mockResponse(updateStoredUser({ ...current, name: trimmed }), 400)
+  }
+  const { user } = await patchJson<{ user: User }>('/me', { name: trimmed })
+  return updateStoredUser(user)
+}
+
+/** Elimina la cuenta del usuario con sesión, confirmando con su contraseña (REQ-05). */
+export async function deleteAccount(password: string): Promise<void> {
+  if (USE_MOCK) {
+    const current = getStoredSession()?.user
+    const record = current && getMockUsers().find((user) => user.id === current.id)
+    if (!record) return mockError(401, 'Debes iniciar sesión.')
+    if (record.password !== password) return mockError(403, 'La contraseña no es correcta.')
+    overrideMockUser(record.id, { deleted: true })
+    clearSession()
+    return mockResponse(undefined, 400)
+  }
+  await deleteJson('/me', { password })
+  clearSession()
 }
