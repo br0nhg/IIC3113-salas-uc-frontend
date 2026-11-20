@@ -100,13 +100,15 @@ export default function FavoritesReportsPage() {
         </div>
       )}
 
-      <ReportModal
-        open={reportOpen}
-        onClose={() => setReportOpen(false)}
-        rooms={rooms}
-        buildings={catalog?.buildings}
-        onCreated={(report) => reports.update((list) => [report, ...list])}
-      />
+      {catalog && (
+        <ReportModal
+          open={reportOpen}
+          onClose={() => setReportOpen(false)}
+          catalog={catalog}
+          rooms={rooms}
+          onCreated={(report) => reports.update((list) => [report, ...list])}
+        />
+      )}
     </div>
   )
 }

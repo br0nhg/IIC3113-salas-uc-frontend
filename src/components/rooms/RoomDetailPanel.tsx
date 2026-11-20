@@ -175,7 +175,7 @@ export default function RoomDetailPanel({
             className="flex min-h-11 w-full items-center justify-center gap-2 rounded border border-outline-variant px-4 text-body-sm font-semibold text-on-surface-variant transition-colors hover:bg-surface-container"
           >
             <Icon name="report_problem" className="text-[18px] text-error" />
-            Reportar problema en sala {room.name}
+            Reportar {room.name} como ocupada
           </button>
           <p className="text-center text-[11px] leading-tight text-outline">
             SalasUC no reserva salas. El uso de salas libres es compartido: respeta a docentes,
@@ -184,7 +184,14 @@ export default function RoomDetailPanel({
         </div>
       </div>
 
-      <ReportModal open={reportOpen} onClose={() => setReportOpen(false)} roomId={room.id} />
+      <ReportModal
+        open={reportOpen}
+        onClose={() => setReportOpen(false)}
+        catalog={catalog}
+        roomId={room.id}
+        day={day}
+        module={module}
+      />
     </article>
   )
 }

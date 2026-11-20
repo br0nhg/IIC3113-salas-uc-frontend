@@ -2,7 +2,7 @@ import { Link, type To } from 'react-router-dom'
 import type { RoomSummary } from '../../types'
 import { cn } from '../../utils/cn'
 import Icon from '../ui/Icon'
-import { formatCapacity, STATUS_STYLES, transitionText } from './roomPresentation'
+import { formatCapacity, occupancyText, STATUS_STYLES, transitionText } from './roomPresentation'
 import StatusBadge from './StatusBadge'
 
 interface RoomCompactListProps {
@@ -32,7 +32,7 @@ export default function RoomCompactList({ summaries, linkTo, selectedId }: RoomC
                   </span>
                 </div>
                 <p className={cn('text-body-sm', STATUS_STYLES[status].text)}>
-                  {reservation ? `Reserva oficial: ${reservation.reason}` : transitionText(status, transition)}
+                  {reservation ? occupancyText(reservation) : transitionText(status, transition)}
                 </p>
               </div>
               <StatusBadge status={status} />
@@ -78,7 +78,7 @@ export default function RoomCompactList({ summaries, linkTo, selectedId }: RoomC
                 <StatusBadge status={status} />
               </td>
               <td className={cn('px-4 py-2.5 text-xs', STATUS_STYLES[status].text)}>
-                {reservation ? `Reserva oficial: ${reservation.reason}` : transitionText(status, transition)}
+                {reservation ? occupancyText(reservation) : transitionText(status, transition)}
               </td>
             </tr>
           ))}

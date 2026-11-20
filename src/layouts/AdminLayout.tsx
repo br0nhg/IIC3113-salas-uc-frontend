@@ -4,17 +4,22 @@ import AdminBrand from '../components/admin/AdminBrand'
 import AdminNav from '../components/admin/AdminNav'
 import Icon from '../components/ui/Icon'
 import { getAdminMetrics } from '../services'
+import type { AdminOutletContext } from './admin-outlet'
 
 /** Layout de la consola: barra lateral en md+, menú desplegable en móvil. */
 export default function AdminLayout() {
   const [openReports, setOpenReports] = useState<number | null>(null)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [metricsVersion, setMetricsVersion] = useState(0)
+  const [outletContext] = useState<AdminOutletContext>(() => ({
+    refreshOpenReports: () => setMetricsVersion((version) => version + 1),
+  }))
 
   useEffect(() => {
     getAdminMetrics()
       .then((metrics) => setOpenReports(metrics.openReports))
       .catch(() => undefined)
-  }, [])
+  }, [metricsVersion])
 
   // El menú móvil se cierra con Esc y bloquea el scroll de fondo.
   useEffect(() => {
@@ -58,7 +63,7 @@ export default function AdminLayout() {
         </header>
 
         <main className="flex-1">
-          <Outlet />
+          <Outlet context={outletContext} />
         </main>
       </div>
 

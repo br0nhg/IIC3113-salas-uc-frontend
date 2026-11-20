@@ -4,6 +4,7 @@ import AppLayout from '../layouts/AppLayout'
 import AuthLayout from '../layouts/AuthLayout'
 import AccountPage from '../pages/AccountPage'
 import AdminDashboardPage from '../pages/admin/AdminDashboardPage'
+import AdminReportsPage from '../pages/admin/AdminReportsPage'
 import AdminReservationsPage from '../pages/admin/AdminReservationsPage'
 import RegisterPage from '../pages/auth/RegisterPage'
 import WelcomePage from '../pages/auth/WelcomePage'
@@ -30,6 +31,7 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <AdminDashboardPage /> },
       { path: 'reservas', element: <AdminReservationsPage /> },
+      { path: 'reportes', element: <AdminReportsPage /> },
     ],
   },
   {

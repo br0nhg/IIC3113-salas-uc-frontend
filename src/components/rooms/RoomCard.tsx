@@ -69,7 +69,15 @@ export default function RoomCard({ summary, to, selected = false }: RoomCardProp
           {reservation ? (
             <>
               <dt className="flex shrink-0 items-center gap-1.5">
-                <Icon name="event_busy" className="text-[16px]" /> Reserva
+                {reservation.kind === 'report' ? (
+                  <>
+                    <Icon name="flag" className="text-[16px]" /> Reporte
+                  </>
+                ) : (
+                  <>
+                    <Icon name="event_busy" className="text-[16px]" /> Reserva
+                  </>
+                )}
               </dt>
               <dd className="truncate text-xs font-medium text-on-surface" title={reservation.reason}>
                 {reservation.reason}

@@ -1,9 +1,12 @@
 import type {
   AdminMetrics,
   AdminOfficialReservation,
+  AdminReport,
+  AdminReportFilter,
   AdminRoomRow,
   OfficialReservationsImportResult,
   OfficialReservationInput,
+  ReportReview,
   Room,
   RoomSummaryFilters,
   SyncStatus,
@@ -11,14 +14,16 @@ import type {
 import { USE_MOCK } from './config'
 import { ApiError, deleteJson, getJson, patchJson, postJson } from './http'
 import { MOCK_ROOMS } from './mock/data'
+import { readMockReports, toMockAdminReport, writeMockReports } from './mock/reports'
 import { getMockLastSyncAt, markMockSynced } from './mock/sync'
-import { mockResponse } from './mock/utils'
+import { mockError, mockResponse } from './mock/utils'
 import { getRooms, getRoomSummaries, getSyncStatus } from './salasService'
 
 /*
  * Consola de administración (requiere rol admin en la API).
  * La API aún no registra métricas de uso: solo se informa la cantidad de salas.
- * Endpoints: POST/GET /scraper (sincronización) y PATCH /admin/rooms/:id.
+ * Endpoints: POST/GET /scraper (sincronización), PATCH /admin/rooms/:id,
+ * /admin/official-reservations, /admin/reports y /admin/metrics.
  */
 
 const SYNC_POLL_MS = 5000
@@ -36,10 +41,13 @@ export async function getAdminMetrics(): Promise<AdminMetrics> {
       peakModules: [3, 4],
       retentionRate: 78,
       connectedRooms: MOCK_ROOMS.length,
-      openReports: 3,
+      openReports: readMockReports().map(toMockAdminReport).filter((r) => r.status === 'pending').length,
     })
   }
-  const rooms = await getRooms()
+  const [rooms, { openReports }] = await Promise.all([
+    getRooms(),
+    getJson<{ openReports: number }>('/admin/metrics'),
+  ])
   return {
     weeklyActiveUsers: 0,
     weeklyActiveUsersChange: 0,
@@ -47,7 +55,7 @@ export async function getAdminMetrics(): Promise<AdminMetrics> {
     peakModules: [],
     retentionRate: 0,
     connectedRooms: rooms.length,
-    openReports: 0,
+    openReports,
   }
 }
 
@@ -136,4 +144,39 @@ export function updateOfficialReservation(
 export function deleteOfficialReservation(id: string): Promise<void> {
   if (USE_MOCK) return mockResponse(undefined)
   return deleteJson(`/admin/official-reservations/${encodeURIComponent(id)}`)
+}
+
+/* ---------- Reportes de ocupación ---------- */
+
+/** Reportes para revisar. "pending" muestra solo los vigentes (su bloque no ha terminado). */
+export function getAdminReports(filter: AdminReportFilter = 'pending'): Promise<AdminReport[]> {
+  if (USE_MOCK) {
+    const reports = readMockReports().map(toMockAdminReport)
+    return mockResponse(filter === 'all' ? reports : reports.filter((r) => r.status === filter))
+  }
+  return getJson<AdminReport[]>('/admin/reports', { status: filter })
+}
+
+/** Acepta un reporte (la sala queda no disponible hasta el bloque indicado) o lo rechaza. */
+export function reviewReport(id: string, review: ReportReview): Promise<AdminReport> {
+  if (USE_MOCK) {
+    const reports = readMockReports()
+    const record = reports.find((r) => r.id === id)
+    if (!record) return mockError(404, 'El reporte no existe.')
+    if (
+      review.action === 'accept' &&
+      (review.untilDate < record.date || (review.untilDate === record.date && review.untilModule < record.module))
+    ) {
+      return mockError(400, 'El término no puede ser anterior al módulo reportado.')
+    }
+    Object.assign(record, {
+      status: review.action === 'accept' ? 'accepted' : 'rejected',
+      blockedUntil:
+        review.action === 'accept' ? { date: review.untilDate, module: review.untilModule } : null,
+      reviewedAt: new Date().toISOString(),
+    })
+    writeMockReports(reports)
+    return mockResponse(toMockAdminReport(record))
+  }
+  return patchJson<AdminReport>(`/admin/reports/${encodeURIComponent(id)}`, review)
 }

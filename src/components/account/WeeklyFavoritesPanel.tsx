@@ -8,7 +8,7 @@ import type { Day, DayCode, ModuleNumber, RoomStatus, TimeModule, WeeklySchedule
 import { cn } from '../../utils/cn'
 import { formatModuleRange, getCurrentSlot } from '../../utils/schedule'
 import { roomSlotUrl } from '../../utils/searchParams'
-import { STATUS_STYLES } from '../rooms/roomPresentation'
+import { occupancyText, STATUS_STYLES } from '../rooms/roomPresentation'
 import WeeklyScheduleGrid from '../rooms/WeeklyScheduleGrid'
 import Chip from '../ui/Chip'
 import ChipGroup from '../ui/ChipGroup'
@@ -134,7 +134,7 @@ function SingleView({
           const style = STATUS_STYLES[status]
           const label = `${day.name} M${module.number} (${formatModuleRange(module)}): ${style.label}${
             reservation
-              ? `, reserva oficial: ${reservation.reason}`
+              ? `, ${occupancyText(reservation)}`
               : course
                 ? `, ${course.code} ${course.name}`
                 : ''
@@ -289,7 +289,7 @@ function SlotDetail({ day, module, schedules }: { day: Day; module: TimeModule; 
               <span className={cn('font-semibold', STATUS_STYLES[status].text)}>{schedule.room.name}</span>{' '}
               {STATUS_STYLES[status].label.toLowerCase()}
               {reservation
-                ? ` · Reserva oficial: ${reservation.reason}`
+                ? ` · ${occupancyText(reservation)}`
                 : course
                   ? ` · ${course.code} ${course.name}`
                   : ''}

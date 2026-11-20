@@ -1,7 +1,7 @@
 import { Link, type To } from 'react-router-dom'
 import type { RoomSummary } from '../../types'
 import { cn } from '../../utils/cn'
-import { formatCapacity, formatFloor, STATUS_STYLES, transitionText } from '../rooms/roomPresentation'
+import { formatCapacity, formatFloor, occupancyText, STATUS_STYLES, transitionText } from '../rooms/roomPresentation'
 import StatusBadge from '../rooms/StatusBadge'
 import Icon from '../ui/Icon'
 
@@ -36,7 +36,7 @@ export default function FavoriteCard({ roomId, summary, to, onRemove }: Favorite
             </p>
             <p className={cn('mt-2 text-xs font-medium', STATUS_STYLES[summary.status].text)}>
               {summary.reservation
-                ? `Reserva oficial: ${summary.reservation.reason}`
+                ? occupancyText(summary.reservation)
                 : transitionText(summary.status, summary.transition)}
             </p>
           </>

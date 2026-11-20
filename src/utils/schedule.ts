@@ -11,6 +11,11 @@ function toLocalIsoDate(date: Date): string {
   return `${year}-${month}-${day}`
 }
 
+/** Fecha de hoy (YYYY-MM-DD) según la hora del dispositivo. */
+export function todayIsoDate(now = new Date()): string {
+  return toLocalIsoDate(now)
+}
+
 /** Lunes de la semana mostrada. En domingo se considera la semana siguiente. */
 export function getDisplayedWeekStart(now = new Date()): string {
   const date = new Date(now.getFullYear(), now.getMonth(), now.getDate())

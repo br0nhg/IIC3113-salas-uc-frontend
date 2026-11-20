@@ -49,11 +49,16 @@ export interface CourseOccupancy {
   name: string
 }
 
-/** Reserva oficial cargada por un administrador. Tiene prioridad sobre BuscaCursos. */
+/**
+ * Ocupación que no viene de BuscaCursos y tiene prioridad sobre ella:
+ * una reserva oficial cargada por el admin o un reporte de usuarios aceptado.
+ * Si ambas coinciden en un bloque, la API entrega la reserva oficial.
+ */
 export interface OfficialReservationOccupancy {
   /** Fecha YYYY-MM-DD. */
   date: string
   reason: string
+  kind: 'official' | 'report'
 }
 
 /** Estado de una sala en un día y módulo específicos. */
@@ -178,27 +183,52 @@ export type HistoryEntryInput =
   | { type: 'search'; filters: SearchFilters }
   | { type: 'room'; roomId: string; day: DayCode }
 
-export type ReportType =
-  | 'shown-free-but-busy'
-  | 'shown-busy-but-free'
-  | 'equipment'
-  | 'locked'
-  | 'other'
+/** Motivo por el que una sala que aparece libre está ocupada. */
+export type ReportReason = 'class' | 'event' | 'exam' | 'locked' | 'maintenance' | 'other'
 
-export type ReportStatus = 'pending' | 'in-review' | 'resolved'
+/**
+ * Estado de un reporte de ocupación:
+ * - pending: espera revisión del administrador.
+ * - accepted: la sala queda no disponible hasta `blockedUntil`.
+ * - rejected: el administrador lo descartó.
+ * - expired: terminó el bloque reportado sin que se revisara.
+ */
+export type ReportStatus = 'pending' | 'accepted' | 'rejected' | 'expired'
 
-export interface ReportInput {
+/** Bloque de una fecha calendario: fecha YYYY-MM-DD y módulo. */
+export interface DateSlot {
+  date: string
+  module: ModuleNumber
+}
+
+export interface ReportInput extends DateSlot {
   roomId: string
-  type: ReportType
+  reason: ReportReason
+  /** Obligatorio si el motivo es "other". */
   detail: string
 }
 
 export interface Report extends ReportInput {
   id: string
   status: ReportStatus
+  /** Hasta qué bloque (inclusive) la sala queda no disponible; solo si fue aceptado. */
+  blockedUntil: DateSlot | null
   /** Fecha ISO. */
   createdAt: string
+  /** Fecha ISO de la revisión del administrador. */
+  reviewedAt: string | null
 }
+
+/** Reporte visto por el administrador, con quién lo envió. */
+export interface AdminReport extends Report {
+  reporter: { name: string; email: string } | null
+}
+
+export type AdminReportFilter = 'pending' | 'accepted' | 'rejected' | 'all'
+
+export type ReportReview =
+  | { action: 'accept'; untilDate: string; untilModule: ModuleNumber }
+  | { action: 'reject' }
 
 /* ---------- Administración ---------- */
 
