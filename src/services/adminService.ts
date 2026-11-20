@@ -9,6 +9,7 @@ import type {
   ReportReview,
   Room,
   RoomSummaryFilters,
+  ScraperStatus,
   SyncStatus,
 } from '../types'
 import { USE_MOCK } from './config'
@@ -21,42 +22,30 @@ import { getRooms, getRoomSummaries, getSyncStatus } from './salasService'
 
 /*
  * Consola de administración (requiere rol admin en la API).
- * La API aún no registra métricas de uso: solo se informa la cantidad de salas.
  * Endpoints: POST/GET /scraper (sincronización), PATCH /admin/rooms/:id,
  * /admin/official-reservations, /admin/reports y /admin/metrics.
  */
 
 const SYNC_POLL_MS = 5000
 
-interface ScraperState {
-  status: 'idle' | 'running' | 'completed' | 'failed'
-}
 
 export async function getAdminMetrics(): Promise<AdminMetrics> {
   if (USE_MOCK) {
     return mockResponse({
-      weeklyActiveUsers: 4820,
-      weeklyActiveUsersChange: 14.2,
-      queriesToday: 14210,
-      peakModules: [3, 4],
-      retentionRate: 78,
-      connectedRooms: MOCK_ROOMS.length,
+      students: 128,
+      newStudents: 14,
+      favorites: 342,
       openReports: readMockReports().map(toMockAdminReport).filter((r) => r.status === 'pending').length,
+      activeReportBlocks: readMockReports().filter((r) => r.status === 'accepted').length,
+      upcomingReservations: 0,
+      connectedRooms: MOCK_ROOMS.length,
     })
   }
-  const [rooms, { openReports }] = await Promise.all([
+  const [rooms, metrics] = await Promise.all([
     getRooms(),
-    getJson<{ openReports: number }>('/admin/metrics'),
+    getJson<Omit<AdminMetrics, 'connectedRooms'>>('/admin/metrics'),
   ])
-  return {
-    weeklyActiveUsers: 0,
-    weeklyActiveUsersChange: 0,
-    queriesToday: 0,
-    peakModules: [],
-    retentionRate: 0,
-    connectedRooms: rooms.length,
-    openReports,
-  }
+  return { ...metrics, connectedRooms: rooms.length }
 }
 
 /** Todas las salas con su estado en el día y módulo indicados, ordenadas por nombre. */
@@ -87,10 +76,35 @@ async function runScraper(): Promise<SyncStatus> {
   })
   for (;;) {
     await new Promise((resolve) => setTimeout(resolve, SYNC_POLL_MS))
-    const { status } = await getJson<ScraperState>('/scraper')
+    const { status } = await getJson<ScraperStatus>('/scraper')
     if (status === 'completed') return getSyncStatus()
     if (status !== 'running') throw new ApiError(500, 'La sincronización con BuscaCursos falló.')
   }
+}
+
+/** Estado y log del scraper (GET /scraper). */
+export function getScraperStatus(): Promise<ScraperStatus> {
+  if (USE_MOCK) {
+    return mockResponse({
+      status: 'completed',
+      startedAt: getMockLastSyncAt(),
+      finishedAt: getMockLastSyncAt(),
+      exitCode: 0,
+      log: ['Modo demostración: el scraper real corre en el servidor de la API.'],
+    })
+  }
+  return getJson<ScraperStatus>('/scraper')
+}
+
+/** Inicia el scraper sin esperar a que termine. Si ya está corriendo, no hace nada. */
+export async function startScraper(): Promise<void> {
+  if (USE_MOCK) {
+    markMockSynced()
+    return mockResponse(undefined, 600)
+  }
+  await postJson('/scraper').catch((error: unknown) => {
+    if (!(error instanceof ApiError && error.status === 409)) throw error
+  })
 }
 
 /** Piso y capacidad de una sala; no vienen de BuscaCursos y los ingresa el administrador. */

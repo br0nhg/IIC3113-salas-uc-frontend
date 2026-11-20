@@ -1,17 +1,17 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import AdminRoomsTable from '../../components/admin/AdminRoomsTable'
 import MetricCard from '../../components/admin/MetricCard'
 import RoomInfoModal from '../../components/admin/RoomInfoModal'
 import SyncStatusPill from '../../components/admin/SyncStatusPill'
 import Button from '../../components/ui/Button'
 import EmptyState from '../../components/ui/EmptyState'
-import Icon from '../../components/ui/Icon'
 import Skeleton from '../../components/ui/Skeleton'
 import { useToast } from '../../context/toast-context'
 import { useCatalog, type Catalog } from '../../hooks/useCatalog'
 import { getAdminMetrics, getAdminRooms, getSyncStatus, triggerSync, USE_MOCK } from '../../services'
 import type { AdminMetrics, AdminRoomRow, Room } from '../../types'
-import { formatChange, formatInteger } from '../../utils/numbers'
+import { formatInteger } from '../../utils/numbers'
 import { formatModuleRange, getCurrentSlot } from '../../utils/schedule'
 
 /** Consola de administración: sincronización, métricas y salas (/admin). */
@@ -93,8 +93,6 @@ function Dashboard({ catalog }: { catalog: Catalog }) {
     }
   }
 
-  const peak = metrics?.peakModules.map((m) => `M${m}`).join(' y ')
-
   return (
     <div className="space-y-6 p-margin md:p-margin-tablet lg:p-margin-desktop">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -120,39 +118,40 @@ function Dashboard({ catalog }: { catalog: Catalog }) {
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {/* La API aún no registra métricas de uso; solo se muestran en modo demostración. */}
-        {USE_MOCK && (
-          <>
-            <MetricCard
-              label="Usuarios activos (7 días)"
-              value={metrics && formatInteger(metrics.weeklyActiveUsers)}
-              footnote={
-                metrics && (
-                  <span className="flex items-center gap-1 text-status-free">
-                    <Icon name={metrics.weeklyActiveUsersChange >= 0 ? 'trending_up' : 'trending_down'} className="text-[14px]" />
-                    {formatChange(metrics.weeklyActiveUsersChange)} esta semana
-                  </span>
-                )
-              }
-            />
-            <MetricCard
-              label="Consultas hoy"
-              value={metrics && formatInteger(metrics.queriesToday)}
-              footnote={peak && <span className="text-outline">Peak en los módulos {peak}</span>}
-            />
-            <MetricCard
-              label="Retención"
-              value={metrics && `${metrics.retentionRate} %`}
-              footnote={<span className="text-status-free">Usan la app más de 3 días/sem.</span>}
-            />
-          </>
-        )}
+        <MetricCard
+          label="Estudiantes registrados"
+          value={metrics && formatInteger(metrics.students)}
+          footnote={
+            metrics && (
+              <span className="text-status-free">
+                +{formatInteger(metrics.newStudents)} en los últimos 7 días
+              </span>
+            )
+          }
+        />
+        <MetricCard
+          label="Favoritos guardados"
+          value={metrics && formatInteger(metrics.favorites)}
+          footnote={<span className="text-outline">Salas marcadas por los estudiantes</span>}
+        />
+        <MetricCard
+          label="Reportes pendientes"
+          value={metrics && formatInteger(metrics.openReports)}
+          footnote={
+            metrics && (
+              <Link to="/admin/reportes" className="text-secondary hover:underline">
+                {metrics.activeReportBlocks} aceptados vigentes · Revisar
+              </Link>
+            )
+          }
+        />
         <MetricCard
           label="Salas conectadas"
           value={metrics && formatInteger(metrics.connectedRooms)}
           footnote={
             <span className="text-outline">
               Sectores {catalog.buildings.map((b) => b.code).join(', ')}
+              {metrics ? ` · ${metrics.upcomingReservations} reservas oficiales próximas` : ''}
             </span>
           }
         />

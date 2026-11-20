@@ -6,19 +6,15 @@ import Icon from '../ui/Icon'
 interface AdminNavItem {
   label: string
   icon: string
-  /** Sin destino: sección aún no disponible. */
-  to?: string
+  to: string
   showReportsBadge?: boolean
 }
 
 const MAIN_ITEMS: AdminNavItem[] = [
-  { label: 'Dashboard', icon: 'dashboard', to: '/admin' },
-  { label: 'Salas', icon: 'meeting_room' },
-  { label: 'Edificios', icon: 'apartment' },
-  { label: 'Usuarios', icon: 'group' },
+  { label: 'Dashboard y salas', icon: 'dashboard', to: '/admin' },
   { label: 'Reportes', icon: 'flag', to: '/admin/reportes', showReportsBadge: true },
   { label: 'Reservas oficiales', icon: 'event_busy', to: '/admin/reservas' },
-  { label: 'Sincronización', icon: 'sync_alt' },
+  { label: 'Sincronización', icon: 'sync_alt', to: '/admin/sincronizacion' },
 ]
 
 const itemBase =
@@ -47,12 +43,9 @@ export default function AdminNav({ openReports, onNavigate }: AdminNavProps) {
                   {openReports}
                 </span>
               ) : null}
-              {!item.to && !item.showReportsBadge && (
-                <span className="ml-auto text-[10px] text-outline">Pronto</span>
-              )}
             </>
           )
-          return item.to ? (
+          return (
             <NavLink
               key={item.label}
               to={item.to}
@@ -69,15 +62,6 @@ export default function AdminNav({ openReports, onNavigate }: AdminNavProps) {
             >
               {content}
             </NavLink>
-          ) : (
-            <span
-              key={item.label}
-              aria-disabled="true"
-              title="Disponible próximamente"
-              className={cn(itemBase, 'cursor-not-allowed text-on-surface-variant/60')}
-            >
-              {content}
-            </span>
           )
         })}
       </nav>

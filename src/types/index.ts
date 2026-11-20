@@ -233,17 +233,30 @@ export type ReportReview =
 /* ---------- Administración ---------- */
 
 export interface AdminMetrics {
-  /** Usuarios activos en los últimos 7 días. */
-  weeklyActiveUsers: number
-  /** Variación porcentual respecto de la semana anterior (ej. 14.2). */
-  weeklyActiveUsersChange: number
-  queriesToday: number
-  /** Módulos con más consultas hoy. */
-  peakModules: ModuleNumber[]
-  /** Porcentaje de usuarios que vuelven más de 3 días por semana. */
-  retentionRate: number
-  connectedRooms: number
+  /** Cuentas de estudiantes registradas. */
+  students: number
+  /** Estudiantes registrados en los últimos 7 días. */
+  newStudents: number
+  /** Salas guardadas en favoritos (todas las cuentas). */
+  favorites: number
+  /** Reportes de ocupación pendientes de revisión. */
   openReports: number
+  /** Reportes aceptados que aún bloquean una sala. */
+  activeReportBlocks: number
+  /** Reservas oficiales de hoy en adelante. */
+  upcomingReservations: number
+  connectedRooms: number
+}
+
+/** Estado del scraper de BuscaCursos que corre en el servidor. */
+export interface ScraperStatus {
+  status: 'idle' | 'running' | 'completed' | 'failed'
+  /** Fechas ISO; null si nunca corrió desde que partió la API. */
+  startedAt: string | null
+  finishedAt: string | null
+  exitCode: number | null
+  /** Últimas líneas del log. */
+  log: string[]
 }
 
 /** Sala en la tabla de administración: su estado más la fecha de sus datos. */

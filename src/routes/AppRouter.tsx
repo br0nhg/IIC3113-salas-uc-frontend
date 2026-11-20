@@ -6,6 +6,7 @@ import AccountPage from '../pages/AccountPage'
 import AdminDashboardPage from '../pages/admin/AdminDashboardPage'
 import AdminReportsPage from '../pages/admin/AdminReportsPage'
 import AdminReservationsPage from '../pages/admin/AdminReservationsPage'
+import AdminSyncPage from '../pages/admin/AdminSyncPage'
 import RegisterPage from '../pages/auth/RegisterPage'
 import WelcomePage from '../pages/auth/WelcomePage'
 import FavoritesReportsPage from '../pages/FavoritesReportsPage'
@@ -32,6 +33,7 @@ const router = createBrowserRouter([
       { index: true, element: <AdminDashboardPage /> },
       { path: 'reservas', element: <AdminReservationsPage /> },
       { path: 'reportes', element: <AdminReportsPage /> },
+      { path: 'sincronizacion', element: <AdminSyncPage /> },
     ],
   },
   {
