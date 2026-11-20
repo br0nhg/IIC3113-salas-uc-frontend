@@ -29,6 +29,15 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
         await authService.logout()
         setSession(null)
       },
+      async updateName(name) {
+        const next = await authService.updateProfile(name)
+        setSession(next)
+        return next.user
+      },
+      async deleteAccount(password) {
+        await authService.deleteAccount(password)
+        setSession(null)
+      },
     }),
     [session],
   )

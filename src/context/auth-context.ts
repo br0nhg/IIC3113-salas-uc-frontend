@@ -8,6 +8,10 @@ export interface AuthContextValue {
   register: (input: RegisterInput) => Promise<User>
   loginAsGuest: () => User
   logout: () => Promise<void>
+  /** Cambia el nombre del usuario con sesión. */
+  updateName: (name: string) => Promise<User>
+  /** Elimina la cuenta (confirmando con la contraseña) y cierra la sesión. */
+  deleteAccount: (password: string) => Promise<void>
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null)
