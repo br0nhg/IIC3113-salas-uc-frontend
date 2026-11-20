@@ -1,6 +1,6 @@
 import type { CourseOccupancy, OfficialReservationOccupancy, RoomStatus, StatusTransition } from '../../types'
 import { cn } from '../../utils/cn'
-import { STATUS_STYLES, transitionText } from './roomPresentation'
+import { occupancySource, STATUS_STYLES, transitionText } from './roomPresentation'
 
 interface RoomStatusPanelProps {
   status: RoomStatus
@@ -37,7 +37,7 @@ export default function RoomStatusPanel({ status, course, reservation, transitio
         )}
         {reservation && (
           <>
-            Reserva oficial: <strong>{reservation.reason}</strong>.{' '}
+            {occupancySource(reservation)}: <strong>{reservation.reason}</strong>.{' '}
           </>
         )}
         {status === 'nodata'

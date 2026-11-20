@@ -1,4 +1,4 @@
-import type { RoomFeature, RoomStatus, StatusTransition } from '../../types'
+import type { OfficialReservationOccupancy, RoomFeature, RoomStatus, StatusTransition } from '../../types'
 
 /** Etiquetas y clases de cada estado (tokens status-* de DESIGN.md). */
 export const STATUS_STYLES: Record<
@@ -74,4 +74,14 @@ export function transitionIcon(status: RoomStatus): string {
   if (status === 'free') return 'schedule'
   if (status === 'nodata') return 'help_outline'
   return status === 'soon' ? 'alarm' : 'timer'
+}
+
+/** Origen de una ocupación que no viene de BuscaCursos. */
+export function occupancySource(reservation: OfficialReservationOccupancy): string {
+  return reservation.kind === 'report' ? 'Reportada por usuarios' : 'Reserva oficial'
+}
+
+/** "Reserva oficial: Interrogación" o "Reportada por usuarios: Evento o actividad". */
+export function occupancyText(reservation: OfficialReservationOccupancy): string {
+  return `${occupancySource(reservation)}: ${reservation.reason}`
 }

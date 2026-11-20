@@ -2,7 +2,7 @@ import type { ReportStatus } from '../../types'
 import { cn } from '../../utils/cn'
 import { REPORT_STATUS_STYLES } from './reportPresentation'
 
-/** Estado de un reporte: Pendiente, En revisión o Resuelto. */
+/** Estado de un reporte: Pendiente, Aceptado, Rechazado o Vencido. */
 export default function ReportStatusBadge({ status }: { status: ReportStatus }) {
   const style = REPORT_STATUS_STYLES[status]
   return (

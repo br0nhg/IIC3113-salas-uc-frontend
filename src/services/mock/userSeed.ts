@@ -1,7 +1,8 @@
-import type { Favorite, HistoryEntry, Report } from '../../types'
+import type { Favorite, HistoryEntry } from '../../types'
 
 /*
- * Datos iniciales de demostración para la cuenta de prueba estudiante@uc.cl.
+ * Datos iniciales de demostración para la cuenta de prueba estudiante@uc.cl
+ * (sus reportes de demostración están en mock/reports.ts).
  * Solo se usan mientras el usuario no haya guardado datos propios.
  */
 
@@ -30,23 +31,5 @@ export const USER_SEED: Record<string, Record<string, unknown>> = {
         filters: { buildingCode: 'BC', day: 'W', module: 2 },
       },
     ] satisfies HistoryEntry[],
-    reports: [
-      {
-        id: 'r-seed-1',
-        roomId: 'BC23',
-        type: 'equipment',
-        detail: 'Falla el cable HDMI de la mesa docente.',
-        status: 'in-review',
-        createdAt: ago(150),
-      },
-      {
-        id: 'r-seed-2',
-        roomId: 'K201',
-        type: 'shown-free-but-busy',
-        detail: 'Aparecía libre pero había un ensayo de la rama de teatro.',
-        status: 'resolved',
-        createdAt: ago(60 * 24 * 2),
-      },
-    ] satisfies Report[],
   },
 }

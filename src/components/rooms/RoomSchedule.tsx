@@ -1,6 +1,7 @@
 import type { DayCode, ModuleNumber, ScheduleSlot } from '../../types'
 import { cn } from '../../utils/cn'
 import { formatModuleRange, isModulePast } from '../../utils/schedule'
+import { occupancyText } from './roomPresentation'
 
 interface RoomScheduleProps {
   schedule: ScheduleSlot[]
@@ -57,7 +58,7 @@ export default function RoomSchedule({ schedule, day, dayName, selectedModule }:
                 {isFree === null
                   ? 'Sin datos'
                   : reservation
-                    ? `Reserva: ${reservation.reason}`
+                    ? occupancyText(reservation)
                     : course
                     ? `${course.code} ${course.name}`
                     : 'Libre'}

@@ -1,6 +1,6 @@
 import type { Report } from '../../types'
 import { formatRelativeTime } from '../../utils/schedule'
-import { REPORT_TYPE_SHORT } from '../reports/reportPresentation'
+import { formatDateSlot, REPORT_REASON_LABELS } from '../reports/reportPresentation'
 import ReportStatusBadge from '../reports/ReportStatusBadge'
 import EmptyState from '../ui/EmptyState'
 import Panel from '../ui/Panel'
@@ -17,8 +17,8 @@ export default function ReportsSection({ reports, loading, error }: ReportsSecti
   return (
     <Panel id="reportes" title="Mis reportes" icon="campaign" iconClassName="text-error">
       <p className="mb-4 text-body-sm text-outline">
-        Los reportes marcan la sala con una advertencia para otros usuarios mientras se verifica
-        la información.
+        Un administrador revisa cada reporte. Si lo acepta, la sala aparece ocupada para todos
+        durante el tiempo que indique.
       </p>
       {loading ? (
         <div className="space-y-3">
@@ -31,7 +31,7 @@ export default function ReportsSection({ reports, loading, error }: ReportsSecti
         <EmptyState
           icon="flag"
           title="Aún no has enviado reportes"
-          description="Si una sala no coincide con lo que muestra SalasUC, avísanos desde su detalle."
+          description="Si una sala aparece libre pero está ocupada, avísanos desde su detalle."
           className="py-6"
         />
       ) : (
@@ -43,12 +43,18 @@ export default function ReportsSection({ reports, loading, error }: ReportsSecti
             >
               <div className="mb-1 flex items-start justify-between gap-2 text-xs">
                 <span className="font-bold text-primary">
-                  {report.roomId}: {REPORT_TYPE_SHORT[report.type]}
+                  {report.roomId} · {formatDateSlot(report)}
                 </span>
                 <ReportStatusBadge status={report.status} />
               </div>
+              <p className="text-xs font-medium text-on-surface">{REPORT_REASON_LABELS[report.reason]}</p>
               {report.detail && (
                 <p className="text-xs text-on-surface-variant">“{report.detail}”</p>
+              )}
+              {report.blockedUntil && (
+                <p className="mt-1 text-xs text-status-busy">
+                  Ocupada hasta {formatDateSlot(report.blockedUntil)}
+                </p>
               )}
               <p className="mt-2 text-[11px] text-outline">
                 Reportado {formatRelativeTime(report.createdAt)}
